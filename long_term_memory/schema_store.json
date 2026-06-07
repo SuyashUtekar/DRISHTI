@@ -1,0 +1,196 @@
+{
+  "bank_entities": {
+    "columns": [
+      {"name": "bank_id", "type": "VARCHAR(10)", "pii": false},
+      {"name": "bank_name", "type": "VARCHAR(100)", "pii": false},
+      {"name": "bank_type", "type": "VARCHAR(30)", "pii": false},
+      {"name": "hq_city", "type": "VARCHAR(50)", "pii": false},
+      {"name": "total_assets_cr", "type": "DECIMAL(14,2)", "pii": false},
+      {"name": "license_status", "type": "VARCHAR(20)", "pii": false},
+      {"name": "rbi_zone", "type": "VARCHAR(20)", "pii": false},
+      {"name": "registered_on", "type": "DATE", "pii": false}
+    ],
+    "join_keys": {
+      "npa_accounts": "bank_id",
+      "fraud_reports": "bank_id",
+      "bank_inspection_reports": "bank_id",
+      "penalty_orders": "bank_id",
+      "digital_payment_metrics": "bank_id",
+      "bank_complaints": "bank_id",
+      "supervisory_alerts": "bank_id",
+      "bank_returns_submissions": "bank_id"
+    }
+  },
+  "npa_accounts": {
+    "columns": [
+      {"name": "account_id", "type": "VARCHAR(15)", "pii": false},
+      {"name": "bank_id", "type": "VARCHAR(10)", "pii": false},
+      {"name": "borrower_name", "type": "VARCHAR(100)", "pii": true},
+      {"name": "borrower_type", "type": "VARCHAR(20)", "pii": false},
+      {"name": "loan_type", "type": "VARCHAR(30)", "pii": false},
+      {"name": "sanctioned_amt_cr", "type": "DECIMAL(10,2)", "pii": false},
+      {"name": "outstanding_amt_cr", "type": "DECIMAL(10,2)", "pii": false},
+      {"name": "dpd", "type": "INTEGER", "pii": false},
+      {"name": "npa_category", "type": "VARCHAR(20)", "pii": false},
+      {"name": "classification_date", "type": "DATE", "pii": false},
+      {"name": "provisioning_pct", "type": "DECIMAL(5,2)", "pii": false},
+      {"name": "city", "type": "VARCHAR(50)", "pii": false},
+      {"name": "sector", "type": "VARCHAR(40)", "pii": false}
+    ],
+    "join_keys": {
+      "bank_entities": "bank_id",
+      "fraud_reports": "account_id"
+    }
+  },
+  "fraud_reports": {
+    "columns": [
+      {"name": "fraud_id", "type": "VARCHAR(15)", "pii": false},
+      {"name": "bank_id", "type": "VARCHAR(10)", "pii": false},
+      {"name": "account_id", "type": "VARCHAR(15)", "pii": false},
+      {"name": "fraud_type", "type": "VARCHAR(40)", "pii": false},
+      {"name": "amount_cr", "type": "DECIMAL(10,2)", "pii": false},
+      {"name": "detected_date", "type": "DATE", "pii": false},
+      {"name": "reported_date", "type": "DATE", "pii": false},
+      {"name": "reporting_delay_days", "type": "INTEGER", "pii": false},
+      {"name": "fir_filed", "type": "BOOLEAN", "pii": false},
+      {"name": "recovery_amt_cr", "type": "DECIMAL(10,2)", "pii": false},
+      {"name": "status", "type": "VARCHAR(20)", "pii": false},
+      {"name": "sarfaesi_applied", "type": "BOOLEAN", "pii": false}
+    ],
+    "join_keys": {
+      "bank_entities": "bank_id",
+      "npa_accounts": "account_id"
+    }
+  },
+  "bank_inspection_reports": {
+    "columns": [
+      {"name": "inspection_id", "type": "VARCHAR(15)", "pii": false},
+      {"name": "bank_id", "type": "VARCHAR(10)", "pii": false},
+      {"name": "inspection_year", "type": "INTEGER", "pii": false},
+      {"name": "inspection_type", "type": "VARCHAR(20)", "pii": false},
+      {"name": "camels_rating", "type": "INTEGER", "pii": false},
+      {"name": "capital_score", "type": "INTEGER", "pii": false},
+      {"name": "asset_score", "type": "INTEGER", "pii": false},
+      {"name": "mgmt_score", "type": "INTEGER", "pii": false},
+      {"name": "earnings_score", "type": "INTEGER", "pii": false},
+      {"name": "liquidity_score", "type": "INTEGER", "pii": false},
+      {"name": "systems_score", "type": "INTEGER", "pii": false},
+      {"name": "major_findings", "type": "TEXT", "pii": false},
+      {"name": "corrective_action_required", "type": "BOOLEAN", "pii": false},
+      {"name": "next_inspection_due", "type": "DATE", "pii": false}
+    ],
+    "join_keys": {
+      "bank_entities": "bank_id"
+    }
+  },
+  "penalty_orders": {
+    "columns": [
+      {"name": "penalty_id", "type": "VARCHAR(15)", "pii": false},
+      {"name": "bank_id", "type": "VARCHAR(10)", "pii": false},
+      {"name": "penalty_date", "type": "DATE", "pii": false},
+      {"name": "violation_type", "type": "VARCHAR(60)", "pii": false},
+      {"name": "penalty_amt_lakh", "type": "DECIMAL(8,2)", "pii": false},
+      {"name": "circular_ref", "type": "VARCHAR(30)", "pii": false},
+      {"name": "compliance_deadline", "type": "DATE", "pii": false},
+      {"name": "complied", "type": "BOOLEAN", "pii": false},
+      {"name": "remarks", "type": "TEXT", "pii": false}
+    ],
+    "join_keys": {
+      "bank_entities": "bank_id",
+      "rbi_circulars_registry": "circular_ref"
+    }
+  },
+  "rbi_circulars_registry": {
+    "columns": [
+      {"name": "circular_ref", "type": "VARCHAR(30)", "pii": false},
+      {"name": "circular_title", "type": "VARCHAR(200)", "pii": false},
+      {"name": "issued_date", "type": "DATE", "pii": false},
+      {"name": "department", "type": "VARCHAR(50)", "pii": false},
+      {"name": "subject", "type": "VARCHAR(200)", "pii": false}
+    ],
+    "join_keys": {
+      "penalty_orders": "circular_ref"
+    }
+  },
+  "digital_payment_metrics": {
+    "columns": [
+      {"name": "metric_id", "type": "INTEGER", "pii": false},
+      {"name": "bank_id", "type": "VARCHAR(10)", "pii": false},
+      {"name": "month", "type": "DATE", "pii": false},
+      {"name": "upi_txn_count", "type": "BIGINT", "pii": false},
+      {"name": "upi_txn_val_cr", "type": "DECIMAL(14,2)", "pii": false},
+      {"name": "neft_txn_count", "type": "BIGINT", "pii": false},
+      {"name": "rtgs_txn_val_cr", "type": "DECIMAL(14,2)", "pii": false},
+      {"name": "failed_txn_pct", "type": "DECIMAL(5,2)", "pii": false},
+      {"name": "system_uptime_pct", "type": "DECIMAL(5,2)", "pii": false},
+      {"name": "cyber_incidents", "type": "INTEGER", "pii": false}
+    ],
+    "join_keys": {
+      "bank_entities": "bank_id"
+    }
+  },
+  "bank_complaints": {
+    "fields": [
+      {"name": "_id", "type": "STRING", "pii": false},
+      {"name": "bank_id", "type": "STRING", "pii": false},
+      {"name": "bank_name", "type": "STRING", "pii": false},
+      {"name": "complainant_type", "type": "STRING", "pii": false},
+      {"name": "complaint_category", "type": "STRING", "pii": false},
+      {"name": "complaint_subcategory", "type": "STRING", "pii": false},
+      {"name": "amount_disputed_lakh", "type": "DOUBLE", "pii": false},
+      {"name": "complaint_date", "type": "STRING", "pii": false},
+      {"name": "status", "type": "STRING", "pii": false},
+      {"name": "escalation_level", "type": "INT", "pii": false},
+      {"name": "rbi_intervention_required", "type": "BOOLEAN", "pii": false},
+      {"name": "resolution_deadline", "type": "STRING", "pii": false},
+      {"name": "complaint_text", "type": "STRING", "pii": true},
+      {"name": "prior_bank_response", "type": "STRING", "pii": false},
+      {"name": "city", "type": "STRING", "pii": false},
+      {"name": "tags", "type": "ARRAY[STRING]", "pii": false}
+    ],
+    "join_keys": {
+      "bank_entities": "bank_id"
+    }
+  },
+  "supervisory_alerts": {
+    "fields": [
+      {"name": "_id", "type": "STRING", "pii": false},
+      {"name": "alert_type", "type": "STRING", "pii": false},
+      {"name": "severity", "type": "STRING", "pii": false},
+      {"name": "bank_id", "type": "STRING", "pii": false},
+      {"name": "bank_name", "type": "STRING", "pii": false},
+      {"name": "triggered_on", "type": "STRING", "pii": false},
+      {"name": "trigger_metric", "type": "STRING", "pii": false},
+      {"name": "trigger_value", "type": "DOUBLE", "pii": false},
+      {"name": "threshold", "type": "DOUBLE", "pii": false},
+      {"name": "recommended_action", "type": "STRING", "pii": false},
+      {"name": "assigned_dept", "type": "STRING", "pii": false},
+      {"name": "status", "type": "STRING", "pii": false},
+      {"name": "auto_escalate_by", "type": "STRING", "pii": false},
+      {"name": "supporting_data", "type": "OBJECT", "pii": false}
+    ],
+    "join_keys": {
+      "bank_entities": "bank_id"
+    }
+  },
+  "bank_returns_submissions": {
+    "fields": [
+      {"name": "_id", "type": "STRING", "pii": false},
+      {"name": "bank_id", "type": "STRING", "pii": false},
+      {"name": "bank_name", "type": "STRING", "pii": false},
+      {"name": "return_type", "type": "STRING", "pii": false},
+      {"name": "return_description", "type": "STRING", "pii": false},
+      {"name": "period", "type": "STRING", "pii": false},
+      {"name": "due_date", "type": "STRING", "pii": false},
+      {"name": "submitted_date", "type": "STRING", "pii": false},
+      {"name": "submission_delay_days", "type": "INT", "pii": false},
+      {"name": "status", "type": "STRING", "pii": false},
+      {"name": "penalty_applicable", "type": "BOOLEAN", "pii": false},
+      {"name": "data_quality_score", "type": "INT", "pii": false},
+      {"name": "remarks", "type": "STRING", "pii": false}
+    ],
+    "join_keys": {
+      "bank_entities": "bank_id"
+    }
+  }
+}

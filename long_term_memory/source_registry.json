@@ -1,0 +1,112 @@
+[
+  {
+    "source_id": "bank_entities",
+    "type": "SQL",
+    "db": "rbi_supervision_db",
+    "description": "Master registry of all banks supervised by RBI",
+    "entities": ["bank_id", "bank_name", "bank_type", "hq_city", "total_assets_cr", "license_status", "rbi_zone", "registered_on"],
+    "query_method": "text_to_sql",
+    "access_scope": ["risk_analyst", "compliance_officer", "fintech_analyst", "executive_officer"],
+    "mcp_connector": "core_banking_mcp"
+  },
+  {
+    "source_id": "npa_accounts",
+    "type": "SQL",
+    "db": "rbi_supervision_db",
+    "description": "Core NPA monitoring, outstanding amounts, sector, and DPD info",
+    "entities": ["account_id", "bank_id", "borrower_name", "borrower_type", "loan_type", "sanctioned_amt_cr", "outstanding_amt_cr", "dpd", "npa_category", "classification_date", "provisioning_pct", "city", "sector"],
+    "query_method": "text_to_sql",
+    "access_scope": ["risk_analyst", "executive_officer"],
+    "mcp_connector": "core_banking_mcp"
+  },
+  {
+    "source_id": "fraud_reports",
+    "type": "SQL",
+    "db": "rbi_supervision_db",
+    "description": "Fraud monitoring returns reported by banks under FMRS",
+    "entities": ["fraud_id", "bank_id", "account_id", "fraud_type", "amount_cr", "detected_date", "reported_date", "reporting_delay_days", "fir_filed", "recovery_amt_cr", "status", "sarfaesi_applied"],
+    "query_method": "text_to_sql",
+    "access_scope": ["risk_analyst", "compliance_officer", "executive_officer"],
+    "mcp_connector": "core_banking_mcp"
+  },
+  {
+    "source_id": "bank_inspection_reports",
+    "type": "SQL",
+    "db": "rbi_supervision_db",
+    "description": "Annual Financial Inspection (AFI) results, corrective action plans, and CAMELS ratings",
+    "entities": ["inspection_id", "bank_id", "inspection_year", "inspection_type", "camels_rating", "capital_score", "asset_score", "mgmt_score", "earnings_score", "liquidity_score", "systems_score", "major_findings", "corrective_action_required", "next_inspection_due"],
+    "query_method": "text_to_sql",
+    "access_scope": ["risk_analyst", "compliance_officer", "executive_officer"],
+    "mcp_connector": "core_banking_mcp"
+  },
+  {
+    "source_id": "penalty_orders",
+    "type": "SQL",
+    "db": "rbi_supervision_db",
+    "description": "Penalties imposed by RBI on banks for violations",
+    "entities": ["penalty_id", "bank_id", "penalty_date", "violation_type", "penalty_amt_lakh", "circular_ref", "compliance_deadline", "complied", "remarks"],
+    "query_method": "text_to_sql",
+    "access_scope": ["compliance_officer", "executive_officer"],
+    "mcp_connector": "core_banking_mcp"
+  },
+  {
+    "source_id": "rbi_circulars_registry",
+    "type": "SQL",
+    "db": "rbi_supervision_db",
+    "description": "Official registry of RBI circulars and regulatory guidelines reference",
+    "entities": ["circular_ref", "circular_title", "issued_date", "department", "subject"],
+    "query_method": "text_to_sql",
+    "access_scope": ["risk_analyst", "compliance_officer", "fintech_analyst", "executive_officer"],
+    "mcp_connector": "core_banking_mcp"
+  },
+  {
+    "source_id": "digital_payment_metrics",
+    "type": "SQL",
+    "db": "rbi_supervision_db",
+    "description": "Digital payment stats (UPI, NEFT, RTGS), failures, uptimes, and cyber incidents",
+    "entities": ["metric_id", "bank_id", "month", "upi_txn_count", "upi_txn_val_cr", "neft_txn_count", "rtgs_txn_val_cr", "failed_txn_pct", "system_uptime_pct", "cyber_incidents"],
+    "query_method": "text_to_sql",
+    "access_scope": ["fintech_analyst", "executive_officer"],
+    "mcp_connector": "core_banking_mcp"
+  },
+  {
+    "source_id": "bank_complaints",
+    "type": "NoSQL",
+    "db": "supervision_mongo",
+    "description": "Escalated public complaints from BCSBI/CMS portal including UPI, ATM and loan complaints",
+    "entities": ["_id", "bank_id", "bank_name", "complainant_type", "complaint_category", "complaint_subcategory", "amount_disputed_lakh", "complaint_date", "status", "escalation_level", "rbi_intervention_required", "resolution_deadline", "complaint_text", "prior_bank_response", "city", "tags"],
+    "query_method": "nosql_query",
+    "access_scope": ["compliance_officer", "fintech_analyst", "executive_officer"],
+    "mcp_connector": "mongo_mcp"
+  },
+  {
+    "source_id": "supervisory_alerts",
+    "type": "NoSQL",
+    "db": "supervision_mongo",
+    "description": "Early Warning System (EWS) alerts for gross NPA spikes, capital adequacy, fraud delay",
+    "entities": ["_id", "alert_type", "severity", "bank_id", "bank_name", "triggered_on", "trigger_metric", "trigger_value", "threshold", "recommended_action", "assigned_dept", "status", "auto_escalate_by", "supporting_data"],
+    "query_method": "nosql_query",
+    "access_scope": ["risk_analyst", "compliance_officer", "executive_officer"],
+    "mcp_connector": "mongo_mcp"
+  },
+  {
+    "source_id": "bank_returns_submissions",
+    "type": "NoSQL",
+    "db": "supervision_mongo",
+    "description": "Compliance returns submission tracker (BSR, DSB, FMR returns)",
+    "entities": ["_id", "bank_id", "bank_name", "return_type", "return_description", "period", "due_date", "submitted_date", "submission_delay_days", "status", "penalty_applicable", "data_quality_score", "remarks"],
+    "query_method": "nosql_query",
+    "access_scope": ["risk_analyst", "compliance_officer", "executive_officer"],
+    "mcp_connector": "mongo_mcp"
+  },
+  {
+    "source_id": "vector_db",
+    "type": "VectorDB",
+    "db": "rbi_vector_store",
+    "description": "RBI Circulars, Annual Financial Inspection reports, FATF/Basel III guidelines, bank investigation files, and internal SOPs",
+    "entities": ["doc_id", "title", "circular_ref", "bank_id", "chunk_count", "page_count", "topic_tags", "dept_relevance", "content_chunk"],
+    "query_method": "vector_search",
+    "access_scope": ["risk_analyst", "compliance_officer", "fintech_analyst", "executive_officer"],
+    "mcp_connector": "vector_mcp"
+  }
+]

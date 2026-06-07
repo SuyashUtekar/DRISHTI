@@ -1,0 +1,113 @@
+import unittest
+from ltm_manager import LongTermMemoryManager
+
+class TestLongTermMemoryManager(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.manager = LongTermMemoryManager()
+
+    def test_sources_loaded(self):
+        """Test that all 11 sources are registered in the source registry."""
+        sources = self.manager.get_all_sources()
+        self.assertEqual(len(sources), 11)
+        source_ids = [s["source_id"] for s in sources]
+        self.assertIn("bank_entities", source_ids)
+        self.assertIn("npa_accounts", source_ids)
+        self.assertIn("bank_complaints", source_ids)
+        self.assertIn("vector_db", source_ids)
+
+    def test_schema_store(self):
+        """Test that schemas are correctly defined and can be retrieved."""
+        # SQL Table check
+        npa_schema = self.manager.get_schema("npa_accounts")
+        self.assertIsNotNone(npa_schema)
+        columns = [col["name"] for col in npa_schema["columns"]]
+        self.assertIn("account_id", columns)
+        self.assertIn("dpd", columns)
+        self.assertIn("borrower_name", columns)
+        
+        # Verify join keys
+        self.assertEqual(npa_schema["join_keys"]["bank_entities"], "bank_id")
+
+        # NoSQL Collection check
+        complaints_schema = self.manager.get_schema("bank_complaints")
+        self.assertIsNotNone(complaints_schema)
+        fields = [f["name"] for f in complaints_schema["fields"]]
+        self.assertIn("complaint_category", fields)
+        self.assertIn("complaint_text", fields)
+
+    def test_domain_glossary_resolution(self):
+        """Test that glossary terms are correctly identified and resolved from query text."""
+        # Test NPA resolution
+        resolved = self.manager.resolve_domain_terms("What is the average NPA of City Union Bank?")
+        self.assertTrue(len(resolved) >= 1)
+        self.assertEqual(resolved[0]["term"], "NPA")
+        self.assertIn("DPD > 90 days", resolved[0]["definition"])
+
+        # Test multiple terms resolution
+        resolved_multiple = self.manager.resolve_domain_terms("Identify evergreening cases and exposure levels in SBI")
+        terms = [r["term"] for r in resolved_multiple]
+        self.assertIn("evergreening", terms)
+        self.assertIn("exposure", terms)
+
+    def test_compliance_rules(self):
+        """Test compliance role-based access checks and field masking requirements."""
+        # Test risk analyst access to npa_accounts (allowed, but borrower_name is PII denied)
+        access_risk = self.manager.enforce_access(
+            role="risk_analyst", 
+            source_id="npa_accounts", 
+            fields=["account_id", "borrower_name", "outstanding_amt_cr"]
+        )
+        self.assertTrue(access_risk["allowed"])
+        self.assertIn("borrower_name", access_risk["denied_fields_accessed"])
+        self.assertEqual(access_risk["max_rows"], 500)
+
+        # Test risk analyst access to penalty_orders (denied source)
+        access_risk_denied = self.manager.enforce_access(
+            role="risk_analyst",
+            source_id="penalty_orders",
+            fields=["penalty_id"]
+        )
+        self.assertFalse(access_risk_denied["allowed"])
+        self.assertIn("denied", access_risk_denied["reason"])
+
+        # Test executive officer access to npa_accounts (allowed, no denied fields)
+        access_exec = self.manager.enforce_access(
+            role="executive_officer",
+            source_id="npa_accounts",
+            fields=["account_id", "borrower_name", "outstanding_amt_cr"]
+        )
+        self.assertTrue(access_exec["allowed"])
+        self.assertEqual(len(access_exec["denied_fields_accessed"]), 0)
+        self.assertEqual(access_exec["max_rows"], 5000)
+
+    def test_query_pattern_matching(self):
+        """Test query pattern library lookups."""
+        # Test lookup by ID
+        pattern = self.manager.get_query_pattern("circular_lookup")
+        self.assertIsNotNone(pattern)
+        self.assertEqual(pattern["execution_plan"], "vector_search -> validator_node -> synthesizer")
+
+        # Test plan matching for sources
+        matched = self.manager.match_query_pattern(["vector_db", "bank_inspection_reports", "npa_accounts"])
+        self.assertIsNotNone(matched)
+        self.assertEqual(matched["pattern_id"], "bank_risk_npa_camels")
+
+    def test_routing_signal_rules(self):
+        """Test keyword signal match routing."""
+        # SQL signal routing
+        routes_sql = self.manager.match_routing_signal("average transaction volume and incident counts")
+        self.assertTrue(len(routes_sql) >= 1)
+        self.assertEqual(routes_sql[0]["route"], "sql")
+
+        # Vector DB signal routing
+        routes_vec = self.manager.match_routing_signal("what guidelines does the RBI MD on KYC mention?")
+        routes_vec_types = [r["route"] for r in routes_vec]
+        self.assertIn("vector_db", routes_vec_types)
+
+        # NoSQL signal routing
+        routes_nosql = self.manager.match_routing_signal("retrieve bank returns submission data")
+        self.assertEqual(routes_nosql[0]["route"], "nosql")
+
+if __name__ == "__main__":
+    unittest.main()

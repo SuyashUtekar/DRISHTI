@@ -1,0 +1,26 @@
+[
+  {
+    "signal": "report|circular|document|email|PDF|master direction|guideline|rbi md|policy note|sop",
+    "route": "vector_db",
+    "confidence": 0.92,
+    "description": "Keywords related to unstructured document lookups and directives"
+  },
+  {
+    "signal": "count|sum|average|avg|filter|list all|npa|dpd|overdue|exposure|asset|penalty|payment|upi|neft|rtgs|cyber|incident",
+    "route": "sql",
+    "confidence": 0.95,
+    "description": "Keywords related to relational aggregations, metrics, stats, and structured tables"
+  },
+  {
+    "signal": "complaint|cms|cms portal|bcsbi|alert|ews|warning|return|bsr|dsb|fmr|submission|late",
+    "route": "nosql",
+    "confidence": 0.88,
+    "description": "Keywords related to customer complaints, system alerts, and compliance submissions"
+  },
+  {
+    "signal": "similar to|related to|what does.*say|interpretation of|clarification of",
+    "route": "vector_db",
+    "confidence": 0.90,
+    "description": "Intent patterns requesting semantic explanations and document references"
+  }
+]

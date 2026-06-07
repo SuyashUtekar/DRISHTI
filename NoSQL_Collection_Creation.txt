@@ -1,0 +1,76 @@
+NoSQL Collections (MongoDB)
+
+3 collections — flexible, event-driven data
+
+Collection 1 — bank_complaints
+Public complaints escalated to RBI from BCSBI/CMS portal.
+
+{
+  "_id": "CMP-2024-00341",
+  "bank_id": "BNK-004",
+  "bank_name": "City Union Bank",
+  "complainant_type": "INDIVIDUAL",
+  "complaint_category": "UNAUTHORISED_TRANSACTION",
+  "complaint_subcategory": "UPI_FRAUD",
+  "amount_disputed_lakh": 2.5,
+  "complaint_date": "2024-08-14",
+  "status": "OPEN",
+  "escalation_level": 2,
+  "rbi_intervention_required": true,
+  "resolution_deadline": "2024-09-14",
+  "complaint_text": "Unauthorised UPI transfer of ₹2.5L from my account on 12-Aug-2024...",
+  "prior_bank_response": "Bank denied liability citing OTP sharing",
+  "city": "Chennai",
+  "tags": ["upi", "fraud", "escalated"]
+}
+
+
+Dummy documents: 150 complaints — mix of UPI fraud, loan mis-selling, KYC harassment, ATM disputes
+
+Collection 2 — supervisory_alerts
+Real-time alerts generated from bank data submissions — Early Warning System (EWS)
+
+{
+  "_id": "ALERT-2024-1821",
+  "alert_type": "NPA_SPIKE",
+  "severity": "HIGH",
+  "bank_id": "BNK-012",
+  "bank_name": "Deccan Urban Co-operative Bank",
+  "triggered_on": "2024-11-03T09:15:00Z",
+  "trigger_metric": "gross_npa_pct",
+  "trigger_value": 18.4,
+  "threshold": 10.0,
+  "recommended_action": "Initiate special inspection",
+  "assigned_dept": "DEPT_RISK",
+  "status": "PENDING_REVIEW",
+  "auto_escalate_by": "2024-11-10T00:00:00Z",
+  "supporting_data": {
+    "prev_quarter_npa_pct": 11.2,
+    "qoq_change_pct": 64.3,
+    "top_defaulting_sectors": ["real_estate", "msme"]
+  }
+}
+
+Dummy documents: 100 alerts — NPA spikes, fraud report delays, capital adequacy breaches, cyber incidents
+
+Collection 3 — bank_returns_submissions
+Banks submit periodic returns (BSR, DSB, FMR) — track submission compliance.
+
+{
+  "_id": "RET-2024-PNB-BSR-Q3",
+  "bank_id": "BNK-002",
+  "bank_name": "Punjab National Bank",
+  "return_type": "BSR",
+  "return_description": "Basic Statistical Return — Credit",
+  "period": "Q3-2024",
+  "due_date": "2024-10-15",
+  "submitted_date": "2024-10-22",
+  "submission_delay_days": 7,
+  "status": "LATE_SUBMITTED",
+  "penalty_applicable": true,
+  "data_quality_score": 87,
+  "remarks": "Delay attributed to system migration at bank end"
+}
+
+
+Dummy documents: 120 return records — mix of ON_TIME, LATE, PENDING, REJECTED

@@ -1,0 +1,53 @@
+Vector DB Documents (PDF Corpus)
+
+5 document categories — what RBI officers actually read
+
+Category 1 — RBI Circulars & Master Directions
+15 documents
+
+RBI_MD_KYC_2016_Updated2024.pdf       — Master Direction on KYC
+RBI_MD_FraudClassification_2024.pdf   — Fraud classification & reporting
+RBI_Circular_IRACP_2023.pdf           — Income Recognition & NPA norms
+RBI_Circular_DigitalLending_2022.pdf  — Digital lending guidelines
+RBI_MD_NBFC_Regulations_2023.pdf      — NBFC regulatory framework
+RBI_Circular_CyberSecurity_2023.pdf   — IT & cyber security directions
+RBI_Circular_UPI_Interoperability.pdf — UPI framework
+... (8 more)
+
+
+Category 2 — Annual Financial Inspection (AFI) Reports
+10 documents (one per major bank)
+
+AFI_Report_BNK001_SBI_2023.pdf
+AFI_Report_BNK004_CUB_2023.pdf
+AFI_Report_BNK012_DeccanUCB_2023.pdf
+... (7 more)
+
+Each contains: CAMELS narrative, key findings, management response, corrective action plan.
+
+Category 3 — FATF / Basel III Reference Documents
+5 documents
+
+Basel3_CapitalAdequacy_Framework.pdf
+FATF_Recommendations_AML_2023.pdf
+BIS_LiquidityRisk_Guidelines.pdf
+FSB_ResolutionFramework.pdf
+RBI_IndAS_Implementation_Guide.pdf
+
+
+Category 4 — Bank-Submitted Investigation Reports
+20 documents
+FraudInvestigation_BNK002_FRAUD2024081.pdf
+FraudInvestigation_BNK007_FRAUD2024034.pdf
+LegalOpinion_SARFAESI_BNK004_2024.pdf
+... (17 more)
+
+
+Category 5 — Internal RBI Policy Notes
+8 documents
+
+RBI_InternalPolicy_EWS_Framework.pdf
+RBI_SOP_SpecialInspection.pdf
+RBI_Thematic_MSME_Lending_2024.pdf
+RBI_Note_CoopBankSupervision.pdf
+... (4 more)

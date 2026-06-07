@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic AI — Detailed Flow Steps</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:      #0f0f14;
+  --paper:    #f5f2eb;
+  --cream:    #ede9e0;
+  --rule:     #d4cfc4;
+  --muted:    #8a8478;
+  --accent:   #c8410a;
+  --accent2:  #1a5c8a;
+  --accent3:  #2d7a4f;
+  --gold:     #b8860b;
+  --col1:     #c8410a;
+  --col2:     #1a5c8a;
+  --col3:     #2d7a4f;
+  --col4:     #7b3fa0;
+  --col5:     #b8860b;
+  --col6:     #c0392b;
+  --col7:     #1a6b5a;
+  --col8:     #0d4f8a;
+  --col9:     #8b4513;
+  --col10:    #2c3e7a;
+  --col11:    #4a7c59;
+  --col12:    #8a3060;
+  --col13:    #3d6b8a;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1.6;
+}
+
+/* ── PAGE LAYOUT ── */
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 60px 40px 100px;
+}
+
+/* ── MASTHEAD ── */
+.masthead {
+  border-top: 4px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+  padding: 28px 0 20px;
+  margin-bottom: 48px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 20px;
+}
+.masthead-left {}
+.issue-line {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.masthead h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 5vw, 56px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -1px;
+}
+.masthead h1 em {
+  color: var(--accent);
+  font-style: italic;
+}
+.masthead-right {
+  text-align: right;
+}
+.step-count {
+  font-family: 'Playfair Display', serif;
+  font-size: 64px;
+  font-weight: 900;
+  color: var(--rule);
+  line-height: 1;
+}
+.step-count span {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  display: block;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ── INTRO DECK ── */
+.intro-deck {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+  margin-bottom: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--rule);
+}
+.intro-text {
+  font-size: 16px;
+  line-height: 1.75;
+  color: #2a2a2a;
+}
+.intro-text strong { color: var(--accent); }
+.latency-box {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 20px;
+  border-radius: 4px;
+}
+.latency-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.latency-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #2a2a2a;
+  font-size: 12px;
+}
+.latency-row:last-child { border-bottom: none; }
+.latency-label { color: #94a3b8; font-family:'DM Mono',monospace; font-size:10px; }
+.latency-val   { font-weight: 600; }
+.latency-val.good { color: #4ade80; }
+.latency-val.warn { color: #fbbf24; }
+.latency-val.total { color: #60a5fa; font-size: 15px; }
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 40px 0 20px;
+}
+.section-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--rule);
+  line-height: 1;
+  min-width: 48px;
+}
+.section-info {}
+.section-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* ── FLOW STEP BLOCK ── */
+.step-block {
+  margin-bottom: 4px;
+  border-left: 3px solid var(--rule);
+  padding-left: 20px;
+  position: relative;
+}
+.step-block::before {
+  content: '';
+  position: absolute;
+  left: -5px; top: 10px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+}
+.step-block.active::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.step-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 0 6px;
+}
+.step-idx {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.step-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+}
+.step-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.badge-fast  { background:#dcfce7; color:#16a34a; }
+.badge-med   { background:#fef3c7; color:#d97706; }
+.badge-slow  { background:#fee2e2; color:#dc2626; }
+.badge-cache { background:#dbeafe; color:#1d4ed8; }
+.badge-par   { background:#ede9fe; color:#7c3aed; }
+
+.step-detail {
+  padding: 0 0 12px 0;
+}
+.sub-points {
+  list-style: none;
+  padding: 0;
+}
+.sub-points li {
+  font-size: 13px;
+  color: #3a3a3a;
+  padding: 3px 0 3px 16px;
+  position: relative;
+  line-height: 1.6;
+}
+.sub-points li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+.sub-points li strong { color: var(--ink); }
+.sub-points li code {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  background: var(--cream);
+  padding: 1px 5px;
+  border-radius: 2px;
+  color: var(--accent2);
+}
+.sub-points.nested {
+  padding-left: 16px;
+  margin-top: 4px;
+}
+.sub-points.nested li::before { content: '·'; color: var(--rule); }
+
+/* ── IMPROVEMENT CALLOUT ── */
+.improve-bar {
+  background: var(--cream);
+  border-left: 3px solid var(--accent);
+  padding: 8px 12px;
+  margin: 6px 0 8px;
+  border-radius: 0 3px 3px 0;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.improve-bar::before {
+  content: '⚡';
+  font-size: 13px;
+}
+
+/* ── PARALLEL BLOCK ── */
+.parallel-block {
+  border: 1.5px dashed var(--rule);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  position: relative;
+}
+.parallel-label {
+  position: absolute;
+  top: -9px; left: 12px;
+  background: var(--paper);
+  padding: 0 6px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--col4);
+}
+.parallel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+.parallel-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+.par-item {
+  background: var(--cream);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+.par-item-title {
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.par-item ul {
+  list-style: none;
+  padding: 0;
+}
+.par-item ul li {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 1px 0;
+  padding-left: 10px;
+  position: relative;
+}
+.par-item ul li::before { content:'·'; position:absolute; left:2px; }
+
+/* ── DECISION TREE ── */
+.decision-block {
+  background: var(--cream);
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin: 8px 0;
+  font-size: 12px;
+}
+.decision-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.decision-row:last-child { border-bottom: none; }
+.decision-if {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--col4);
+  min-width: 60px;
+  padding-top: 1px;
+  font-weight: 500;
+}
+.decision-cond { flex: 1; font-weight: 500; }
+.decision-then { color: var(--muted); font-size: 11px; }
+
+/* ── DATA TABLE ── */
+.mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin: 8px 0;
+}
+.mini-table th {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 6px 10px;
+  text-align: left;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  font-weight: 400;
+}
+.mini-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--rule);
+  color: #3a3a3a;
+}
+.mini-table tr:nth-child(even) td { background: var(--cream); }
+
+/* ── DIVIDER ── */
+.section-rule {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 36px 0;
+}
+.section-rule.heavy {
+  border-top: 2px solid var(--ink);
+}
+
+/* ── FLOW CONNECTOR ── */
+.connector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+}
+.connector-line {
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+.connector-arrow { font-size: 14px; }
+
+/* ── COLOR ACCENTS per section ── */
+.s1 { --sc: var(--col1); }
+.s2 { --sc: var(--col2); }
+.s3 { --sc: var(--col3); }
+.s4 { --sc: var(--col4); }
+.s5 { --sc: var(--col5); }
+.s6 { --sc: var(--col6); }
+.s7 { --sc: var(--col7); }
+.s8 { --sc: var(--col8); }
+.s9 { --sc: var(--col9); }
+.s10{ --sc: var(--col10);}
+.s11{ --sc: var(--col11);}
+.s12{ --sc: var(--col12);}
+.s13{ --sc: var(--col13);}
+
+.section-num  { color: var(--sc, var(--rule)) !important; }
+.step-block.active::before { background: var(--sc, var(--accent)); border-color: var(--sc, var(--accent)); }
+
+/* ── PRINT / RESPONSIVE ── */
+@media(max-width:640px){
+  .page { padding: 30px 20px 60px; }
+  .masthead { grid-template-columns: 1fr; }
+  .intro-deck { grid-template-columns: 1fr; }
+  .parallel-grid { grid-template-columns: 1fr; }
+  .parallel-grid.three { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="masthead-left">
+    <div class="issue-line">Agentic AI Hackathon 2026 · RBI Supervision · Technical Blueprint</div>
+    <h1>Complete <em>Flow</em><br>Steps & Architecture</h1>
+  </div>
+  <div class="masthead-right">
+    <div class="step-count">13<span>components</span></div>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="intro-deck">
+  <div class="intro-text">
+    This document details every step, sub-step, decision, and optimization in the end-to-end agentic pipeline — from raw natural language query to synthesized, audit-logged response. Each component includes <strong>what it does, how it does it, and the time complexity improvement</strong> applied. The system achieves <strong>~71% latency reduction</strong> through parallel execution, smart caching, and rule-first fallback patterns.
+  </div>
+  <div class="latency-box">
+    <div class="latency-title">Latency Summary</div>
+    <div class="latency-row"><span class="latency-label">L1 Classify</span><span class="latency-val good">5ms</span></div>
+    <div class="latency-row"><span class="latency-label">Decompose+Para</span><span class="latency-val good">200ms</span></div>
+    <div class="latency-row"><span class="latency-label">L2 Classify</span><span class="latency-val good">150ms</span></div>
+    <div class="latency-row"><span class="latency-label">SQL+NoSQL+Vec</span><span class="latency-val warn">300ms</span></div>
+    <div class="latency-row"><span class="latency-label">Validate+Synth</span><span class="latency-val warn">200ms</span></div>
+    <div class="latency-row"><span class="latency-label">Visualize</span><span class="latency-val good">5ms</span></div>
+    <div class="latency-row"><span class="latency-label">TOTAL</span><span class="latency-val total">~860ms</span></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 1: DATA CREATION -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s1">
+  <div class="section-num">1</div>
+  <div class="section-info">
+    <div class="section-tag">Foundation Layer</div>
+    <div class="section-title">Data Creation</div>
+  </div>
+</div>
+
+<div class="step-block active s1">
+  <div class="step-row">
+    <span class="step-idx">1.a</span>
+    <span class="step-name">DDL Schema Creation</span>
+    <span class="step-badge badge-fast">One-time</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Create PostgreSQL database <code>rbi_supervision_db</code> with UTF-8 encoding</li>
+      <li>Define 7 SQL tables in FK-safe seeding order: <code>bank_entities</code> → <code>rbi_circulars_registry</code> → <code>npa_accounts</code> → <code>bank_inspection_reports</code> → <code>penalty_orders</code> → <code>digital_payment_metrics</code> → <code>fraud_reports</code></li>
+      <li>Apply CHECK constraints on all enum-type columns (bank_type, npa_category, status)</li>
+      <li>Add GENERATED ALWAYS AS column for <code>reporting_delay_days</code> in fraud_reports — auto-computed from detected_date and reported_date</li>
+      <li>Create 3 materialized views: <code>v_bank_risk_summary</code>, <code>v_fraud_delay_violations</code>, <code>v_uncomplied_penalties</code></li>
+      <li>Create MongoDB collections: <code>bank_complaints</code>, <code>supervisory_alerts</code>, <code>bank_returns_submissions</code> with JSON schema validators</li>
+      <li>Create compound indexes on all foreign key + filter columns for sub-10ms query execution</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-block active s1">
+  <div class="step-row">
+    <span class="step-idx">1.b.i</span>
+    <span class="step-name">SQL Metadata Store</span>
+    <span class="step-badge badge-cache">Cached</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Store complete schema metadata in a dedicated <code>sql_metadata</code> table: table name, column names, data types, nullable flags, PII flags, FK relationships</li>
+      <li>Pre-compute join map — which tables can be joined on which keys: <code>fraud_reports.account_id → npa_accounts.account_id</code>, <code>*.bank_id → bank_entities.bank_id</code></li>
+      <li>Store column statistics: min/max values, distinct count, null percentage — used by NL-SQL agent to write precise WHERE clauses</li>
+      <li>Tag each column with department access: which dept can query which column</li>
+      <li>Refresh metadata cache every 6 hours via cron — not per query</li>
+      <li>Load full metadata into Redis at startup for 0ms agent access</li>
+    </ul>
+    <div class="improve-bar">Cache SQL metadata at startup in Redis — saves 80-120ms per query vs fresh DB fetch</div>
+  </div>
+</div>
+
+<div class="step-block active s1">
+  <div class="step-row">
+    <span class="step-idx">1.b.ii</span>
+    <span class="step-name">NoSQL Metadata Store</span>
+    <span class="step-badge badge-cache">Cached</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Store collection metadata: collection name, top-level field names, nested field paths, field types, example values</li>
+      <li>Pre-compute field cardinality for filter optimization — e.g. status field has 4 distinct values</li>
+      <li>Store index definitions — which fields are indexed for fast filter queries</li>
+      <li>Map soft FK references: <code>bank_id</code> in all 3 collections references <code>bank_entities.bank_id</code> in Postgres — documented for cross-store join planning</li>
+      <li>Cache in Redis alongside SQL metadata at startup</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-block active s1">
+  <div class="step-row">
+    <span class="step-idx">1.b.iii</span>
+    <span class="step-name">Document / Vector Metadata Store</span>
+    <span class="step-badge badge-cache">Cached</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Register all 43 documents in a metadata index: doc_id, title, circular_ref, bank_id (if bank-specific), chunk count, page count, topic tags, dept_relevance</li>
+      <li>Store pre-generated summaries for each document as a dedicated <code>executive_summary</code> chunk — retrieved first for overview queries</li>
+      <li>Store image alt-text summaries as text chunks alongside parent document — enables visual content to be retrieved via semantic search</li>
+      <li>Store OCR output of all tables as structured JSON/Markdown — permanently cached, never re-computed</li>
+      <li>Map each document to its SQL counterpart: <code>AFI_BNK002_PNB_2023</code> ↔ <code>INS-PNB-2023</code> in inspection_reports table</li>
+      <li>Pre-cluster topics using k-means on embeddings — 8 topic clusters for fast coarse filtering before dense search</li>
+    </ul>
+    <div class="improve-bar">Pre-cluster topics at index time — reduces dense search space from 1,154 to ~140 chunks per query</div>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 2: SAMPLE QUERIES -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s2">
+  <div class="section-num">2</div>
+  <div class="section-info">
+    <div class="section-tag">Test Harness</div>
+    <div class="section-title">Sample Query Creation</div>
+  </div>
+</div>
+
+<div class="step-block active s2">
+  <div class="step-row">
+    <span class="step-idx">2.a</span>
+    <span class="step-name">Query Bank — Build 50 Labelled Queries</span>
+    <span class="step-badge badge-fast">One-time</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Create 50 sample queries covering all departments and all query types (lookup, summary, report, multi-hop, visualization)</li>
+      <li>Label each query with: source (SQL/NoSQL/Vector/Multi), query_type, expected_output_format, dept, difficulty (simple/medium/complex)</li>
+      <li>Include 5 intentionally invalid queries for L1 classifier testing: SQL injection attempts, out-of-scope questions, empty inputs</li>
+      <li>Include 8 ambiguous queries for ambiguity resolver testing: "show risky banks", "recent fraud", "bad loans"</li>
+    </ul>
+    <table class="mini-table">
+      <tr><th>Query</th><th>Source</th><th>Type</th><th>Dept</th></tr>
+      <tr><td>Which banks have NPA > 10% and CAMELS 4-5?</td><td>SQL + Vector</td><td>Report</td><td>DEPT_RISK</td></tr>
+      <tr><td>Fraud cases with reporting delay > 21 days</td><td>SQL</td><td>Report</td><td>DEPT_FRAUD</td></tr>
+      <tr><td>What does IRACP circular say about doubtful accounts?</td><td>Vector</td><td>Lookup</td><td>DEPT_COMPLY</td></tr>
+      <tr><td>Banks with UPI failure > 2% for 3 months + cyber complaints</td><td>SQL + NoSQL</td><td>Multi-hop</td><td>DEPT_FINTECH</td></tr>
+      <tr><td>Full risk summary — NPA + fraud + penalties simultaneously</td><td>All 3</td><td>Dashboard</td><td>DEPT_EXEC</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="step-block active s2">
+  <div class="step-row">
+    <span class="step-idx">2.b</span>
+    <span class="step-name">Query Result Cache — Warm Up</span>
+    <span class="step-badge badge-cache">Cache</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Pre-execute all 50 sample queries and cache results with tiered TTL strategy</li>
+      <li>Summary reports: 1800s TTL | Live alerts: 60s TTL | Circular lookups: 86400s TTL | NPA aggregations: 300s TTL</li>
+      <li>Use query fingerprinting — lemmatize + sort tokens — to match semantically identical queries to cached results</li>
+      <li>Store cache in Redis with LRU eviction policy and 512MB memory limit</li>
+    </ul>
+    <div class="improve-bar">100% latency saving on cache hit — most frequent RBI queries are repetitive across officers</div>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 3: L1 INTENT CLASSIFIER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s3">
+  <div class="section-num">3</div>
+  <div class="section-info">
+    <div class="section-tag">Gate Layer · Tool</div>
+    <div class="section-title">Intent Classifier Tool — L1 (Valid / Invalid)</div>
+  </div>
+</div>
+
+<div class="step-block active s3">
+  <div class="step-row">
+    <span class="step-idx">3.a</span>
+    <span class="step-name">Layer 1 — Regex Rule Engine</span>
+    <span class="step-badge badge-fast">0–2ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Apply compiled regex patterns for SQL injection: <code>DROP|DELETE|UPDATE|INSERT|TRUNCATE|ALTER|EXEC</code></li>
+      <li>Block sensitive credential queries: <code>password|secret|api_key|token</code></li>
+      <li>Block XSS patterns: <code>&lt;script|javascript:|onerror=</code></li>
+      <li>If any pattern matches → immediately return <code>INVALID</code> with reason — no LLM call needed</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-block active s3">
+  <div class="step-row">
+    <span class="step-idx">3.b</span>
+    <span class="step-name">Layer 2 — Structural Checks</span>
+    <span class="step-badge badge-fast">2–5ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Length check: reject if <code>len(query) &lt; 5</code> or <code>len(query) > 1000</code></li>
+      <li>Language detection: reject if query is not English or Hindi (RBI use case)</li>
+      <li>Character set check: reject excessive special characters suggesting injection</li>
+      <li>If structural check fails → return <code>INVALID</code> with reason</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-block active s3">
+  <div class="step-row">
+    <span class="step-idx">3.c</span>
+    <span class="step-name">Layer 3 — Domain Keyword Check</span>
+    <span class="step-badge badge-fast">5ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Check presence of RBI domain keywords: <code>bank, npa, fraud, loan, penalty, circular, complaint, inspection, camels, rbi, dpd, sarfaesi, upi, kyc, fmrs</code></li>
+      <li>If at least 1 domain keyword found → return <code>VALID</code> immediately — no LLM call</li>
+      <li>If no domain keyword found → escalate to LLM fallback layer</li>
+    </ul>
+    <div class="improve-bar">Skip LLM for 80%+ of valid banking queries — saves 150ms on every standard query</div>
+  </div>
+</div>
+
+<div class="step-block active s3">
+  <div class="step-row">
+    <span class="step-idx">3.d</span>
+    <span class="step-name">Layer 4 — LLM Fallback (only if layers 1-3 inconclusive)</span>
+    <span class="step-badge badge-med">150ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Call lightweight LLM (GPT-3.5-turbo or Claude Haiku) with a strict yes/no validation prompt</li>
+      <li>Prompt: "Is this query related to RBI bank supervision, financial regulation, or banking data? Answer YES or NO only."</li>
+      <li>Return <code>VALID</code> or <code>INVALID</code> based on response</li>
+      <li>Log every L4 call — if many reach L4, expand domain keyword list</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 4: DECOMPOSITION + PARAPHRASING -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s4">
+  <div class="section-num">4</div>
+  <div class="section-info">
+    <div class="section-tag">NLP Layer · Parallel</div>
+    <div class="section-title">Query Decomposition and Paraphrasing</div>
+  </div>
+</div>
+
+<div class="improve-bar" style="margin-bottom:12px;">Run 4.a and 4.b in parallel using asyncio.gather() — total time = max(decompose, paraphrase) not sum</div>
+
+<div class="parallel-block">
+  <div class="parallel-label">Parallel Execution Block</div>
+  <div class="parallel-grid">
+
+    <div class="par-item">
+      <div class="par-item-title">4.a — Query Decomposition (NLP + SpaCy)</div>
+      <ul>
+        <li>Load SpaCy model once at startup as singleton — never reload per query</li>
+        <li>NER: extract entities (bank names, amounts, dates, DPD values, city names)</li>
+        <li>Dependency parsing: identify subject (what) + predicate (action) + object (filter)</li>
+        <li>Intent extraction: detect if query has multiple sub-intents — split into sub-queries</li>
+        <li>Example: "fraud cases with delay AND unpaid penalties" → Sub-Q1: fraud delay query + Sub-Q2: penalty query</li>
+        <li>Output: structured intent object with entities, filters, sub-queries, join hints</li>
+      </ul>
+    </div>
+
+    <div class="par-item">
+      <div class="par-item-title">4.b — Query Paraphrasing (SLM)</div>
+      <ul>
+        <li>Use quantized flan-t5-small (INT8) — 80ms vs 600ms for large model</li>
+        <li>Generate 2 paraphrases to increase semantic search coverage</li>
+        <li>Paraphrase 1: formal version — for vector DB search</li>
+        <li>Paraphrase 2: keyword-dense version — for BM25 pre-filter</li>
+        <li>Example original: "show me bad loans in PNB" → Para1: "List NPA accounts classified at Punjab National Bank" → Para2: "NPA DPD overdue loan PNB accounts"</li>
+        <li>All 3 versions (original + 2 paraphrases) used in vector retrieval for higher recall</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 5: L2 INTENT CLASSIFIER -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s5">
+  <div class="section-num">5</div>
+  <div class="section-info">
+    <div class="section-tag">Routing Layer · Tool</div>
+    <div class="section-title">Intent Classifier Tool — L2 (Source + Query Type)</div>
+  </div>
+</div>
+
+<div class="step-block active s5">
+  <div class="step-row">
+    <span class="step-idx">5.a</span>
+    <span class="step-name">Routing Cache Check — Before LLM</span>
+    <span class="step-badge badge-cache">0ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Generate query fingerprint: lemmatize all non-stop tokens → sort → hash</li>
+      <li>Look up fingerprint in routing cache stored in Redis</li>
+      <li>Cache hit → return source + query_type + tool_plan immediately — skip LLM entirely</li>
+      <li>Cache miss → proceed to signal-based routing rules</li>
+    </ul>
+    <div class="improve-bar">Cache hit rate ~45% for RBI queries — officers ask similar questions repeatedly</div>
+  </div>
+</div>
+
+<div class="step-block active s5">
+  <div class="step-row">
+    <span class="step-idx">5.b</span>
+    <span class="step-name">Signal-Based Rule Routing</span>
+    <span class="step-badge badge-fast">5ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Apply keyword signal rules to decomposition output — no LLM needed</li>
+    </ul>
+    <div class="decision-block">
+      <div class="decision-row">
+        <span class="decision-if">IF</span>
+        <span class="decision-cond">signals: count, sum, list, filter, average, DPD, outstanding, penalty_amt</span>
+        <span class="decision-then">→ Route: SQL | Type: report/lookup</span>
+      </div>
+      <div class="decision-row">
+        <span class="decision-if">IF</span>
+        <span class="decision-cond">signals: complaint, alert, event, submission, activity, log</span>
+        <span class="decision-then">→ Route: NoSQL | Type: lookup/summary</span>
+      </div>
+      <div class="decision-row">
+        <span class="decision-if">IF</span>
+        <span class="decision-cond">signals: circular, says, document, report says, what does, guidelines</span>
+        <span class="decision-then">→ Route: Vector | Type: lookup/explanation</span>
+      </div>
+      <div class="decision-row">
+        <span class="decision-if">IF</span>
+        <span class="decision-cond">signals: show chart, visualize, trend, month-wise, compare</span>
+        <span class="decision-then">→ Type: visualization (+ SQL/NoSQL for data)</span>
+      </div>
+      <div class="decision-row">
+        <span class="decision-if">IF</span>
+        <span class="decision-cond">multiple entity types from decomposition (3+ distinct source signals)</span>
+        <span class="decision-then">→ Route: Multi-hop (all sources) | Type: multi_hop_report</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="step-block active s5">
+  <div class="step-row">
+    <span class="step-idx">5.c</span>
+    <span class="step-name">Single LLM Call — Source + Type + Tool Plan</span>
+    <span class="step-badge badge-med">150ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Only called if signal routing is inconclusive (ambiguous query)</li>
+      <li>Single structured output call — returns source + query_type + tools_needed + parallel_executable in one JSON response</li>
+      <li>Inject decomposition output + source registry metadata as context — not raw query alone</li>
+      <li>Output includes: <code>sources[]</code>, <code>query_type</code>, <code>tools_needed[]</code>, <code>parallel_executable: bool</code>, <code>confidence: float</code></li>
+      <li>Store result in routing cache with 300s TTL for future similar queries</li>
+    </ul>
+    <div class="improve-bar">Combined L2 + tool plan in one LLM call — eliminates a second LLM call that was previously separate</div>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 6: NL-SQL TOOL -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s6">
+  <div class="section-num">6</div>
+  <div class="section-info">
+    <div class="section-tag">Data Tool · SQL</div>
+    <div class="section-title">NL-SQL Tool (LLM)</div>
+  </div>
+</div>
+
+<div class="step-block active s6">
+  <div class="step-row">
+    <span class="step-idx">6.a</span>
+    <span class="step-name">Prompt Construction</span>
+    <span class="step-badge badge-fast">5ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>System prompt: "You are an RBI database analyst. Generate only valid PostgreSQL SELECT statements. Never generate INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE, GRANT. Always include LIMIT clause. Use only column names from the provided schema."</li>
+      <li>Inject relevant table schemas from Redis metadata cache — only tables needed for this query, not all 7</li>
+      <li>Inject join map for tables involved — pre-computed, not described in prose</li>
+      <li>Inject department access rules: which fields are masked for this user's department</li>
+      <li>Inject decomposition output: extracted entities, filters, and sub-queries</li>
+      <li>Include 2-3 few-shot SQL examples similar to the current query type</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-block active s6">
+  <div class="step-row">
+    <span class="step-idx">6.b</span>
+    <span class="step-name">SQL Generation + Pre-execution Guard Rails</span>
+    <span class="step-badge badge-med">200ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>LLM generates parameterized SQL string</li>
+      <li>Parse SQL AST using <code>sqlparse</code> before touching the database — 2ms</li>
+      <li>Guard 1: Block if statement type is not SELECT — reject immediately</li>
+      <li>Guard 2: Scan all tokens for blocked keywords — reject if found</li>
+      <li>Guard 3: Verify all table names exist in schema metadata — reject hallucinated tables</li>
+      <li>Guard 4: Verify all column names exist in respective table schemas — reject hallucinated columns</li>
+      <li>Guard 5: Auto-inject <code>LIMIT 500</code> if no LIMIT clause present</li>
+      <li>Guard 6: Strip denied PII fields from SELECT list based on dept access rules</li>
+      <li>Only if all guards pass → execute via MCP connector on read-only DB connection pool</li>
+    </ul>
+    <div class="improve-bar">Pre-parse AST before execution — blocks bad SQL at 2ms, never hits the database</div>
+  </div>
+</div>
+
+<div class="step-block active s6">
+  <div class="step-row">
+    <span class="step-idx">6.c</span>
+    <span class="step-name">Execution + Result Packaging</span>
+    <span class="step-badge badge-fast">50-100ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Execute via asyncpg connection pool (min 5, max 20 connections) — no connection overhead</li>
+      <li>Return rows as list of dicts with column names preserved</li>
+      <li>Tag result with: source=SQL, table_names, row_count, execution_time_ms, query_hash</li>
+      <li>Write tool call to audit buffer (async — does not block result return)</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 7: NL-NOSQL TOOL -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s7">
+  <div class="section-num">7</div>
+  <div class="section-info">
+    <div class="section-tag">Data Tool · NoSQL</div>
+    <div class="section-title">NL-NoSQL Tool (LLM)</div>
+  </div>
+</div>
+
+<div class="step-block active s7">
+  <div class="step-row">
+    <span class="step-idx">7.a</span>
+    <span class="step-name">Prompt Construction</span>
+    <span class="step-badge badge-fast">5ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>System prompt: "You are an RBI MongoDB analyst. Generate only valid MongoDB find() or aggregate() queries. Never generate insert, update, delete, drop, or createCollection operations. Always include projection to limit fields returned."</li>
+      <li>Inject collection schema: top-level fields, nested paths, field types, example values from metadata cache</li>
+      <li>Inject index definitions — guide LLM to use indexed fields in filters for performance</li>
+      <li>Inject soft FK map — which bank_id values are valid (from bank_entities SQL table)</li>
+      <li>Include 2 few-shot MongoDB query examples for complaint and alert collections</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-block active s7">
+  <div class="step-row">
+    <span class="step-idx">7.b</span>
+    <span class="step-name">Query Generation + Guard Rails</span>
+    <span class="step-badge badge-med">200ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>LLM generates MongoDB query as JSON object</li>
+      <li>Guard 1: Parse JSON and check operation type — only <code>find</code> and <code>aggregate</code> allowed</li>
+      <li>Guard 2: Scan for blocked operators: <code>$out, $merge, $lookup with write</code> — reject if found</li>
+      <li>Guard 3: Verify all field names in filter exist in collection schema</li>
+      <li>Guard 4: Auto-add projection to exclude PII fields not accessible to current department</li>
+      <li>Guard 5: Auto-inject <code>.limit(200)</code> if no limit present</li>
+      <li>Execute via AsyncIOMotorClient connection pool — non-blocking</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-block active s7">
+  <div class="step-row">
+    <span class="step-idx">7.c</span>
+    <span class="step-name">Result Packaging</span>
+    <span class="step-badge badge-fast">10ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Serialize BSON documents to plain Python dicts — strip ObjectId fields</li>
+      <li>Tag result with: source=NoSQL, collection_name, doc_count, execution_time_ms, query_hash</li>
+      <li>Write audit entry async — non-blocking</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 8: VECTOR SEARCH TOOL -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s8">
+  <div class="section-num">8</div>
+  <div class="section-info">
+    <div class="section-tag">Data Tool · Vector</div>
+    <div class="section-title">Document / Vector Search Tool (VLM + LLM)</div>
+  </div>
+</div>
+
+<div class="step-block active s8">
+  <div class="step-row">
+    <span class="step-idx">8.a</span>
+    <span class="step-name">Two-Stage Retrieval — Text Chunks with Embeddings</span>
+    <span class="step-badge badge-par">30ms total</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li><strong>Stage 1 — BM25 Pre-filter (10ms):</strong> Run keyword-based BM25 search on all 1,154 chunks using keyword-dense paraphrase — narrows to top 50 candidate chunks</li>
+      <li><strong>Stage 2 — Dense Vector Search (20ms):</strong> Embed original query + formal paraphrase using BAAI/bge-m3 — run dense similarity search on 50 BM25 candidates only, not full index</li>
+      <li>Use embedding cache: if this query text was embedded before → return cached vector, skip embedding model — saves 80ms</li>
+      <li>Apply metadata pre-filter before vector search: dept_relevance must include current user's department</li>
+      <li>Apply circular_ref pre-filter if query mentions a specific circular number</li>
+      <li>Return top-10 chunks ranked by hybrid score: 0.4 × BM25_score + 0.6 × cosine_similarity</li>
+    </ul>
+    <div class="improve-bar">Two-stage retrieval: 10x smaller search space for dense retrieval — saves 90ms vs full index scan</div>
+  </div>
+</div>
+
+<div class="step-block active s8">
+  <div class="step-row">
+    <span class="step-idx">8.b</span>
+    <span class="step-name">Tabular Data — OCR → Markdown / JSON</span>
+    <span class="step-badge badge-cache">Cached forever</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Check OCR cache first using <code>doc_id + page_number</code> as key — OCR output never changes for static documents</li>
+      <li>Cache hit → return Markdown table / JSON instantly — 0ms OCR cost</li>
+      <li>Cache miss → run OCR pipeline: pdf2image → pytesseract → table detection → Markdown/JSON serialization — 2000-5000ms</li>
+      <li>Store OCR result permanently in Redis with no expiry</li>
+      <li>For CAMELS tables: serialize as structured JSON with component names and scores — queryable by validator</li>
+      <li>For NPA distribution charts: serialize alt_text_summary as text chunk + structured_data as JSON</li>
+    </ul>
+    <div class="improve-bar">Permanent OCR cache — first run is slow (2-5s), every subsequent query is instant (0ms)</div>
+  </div>
+</div>
+
+<div class="step-block active s8">
+  <div class="step-row">
+    <span class="step-idx">8.c</span>
+    <span class="step-name">Image Summary — VLM (Vision Language Model)</span>
+    <span class="step-badge badge-slow">Only on cache miss</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Check image summary cache using <code>image_id</code> as key — static documents never change</li>
+      <li>Cache hit → return pre-generated alt_text_summary as text chunk — 0ms</li>
+      <li>Cache miss → send image to VLM (GPT-4V or Claude 3): "Describe this chart/table from an RBI bank inspection report. Include all numbers, percentages, bank names, and key findings."</li>
+      <li>VLM generates structured summary including: chart type, all data points, key insight, risk signal if present</li>
+      <li>Store VLM-generated summary permanently — never re-run for same image</li>
+      <li>Embed summary as a new chunk and add to vector index — future queries can retrieve it semantically</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 9: VISUALIZATION TOOL -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s9">
+  <div class="section-num">9</div>
+  <div class="section-info">
+    <div class="section-tag">Output Tool</div>
+    <div class="section-title">Visualization Tool</div>
+  </div>
+</div>
+
+<div class="step-block active s9">
+  <div class="step-row">
+    <span class="step-idx">9.a</span>
+    <span class="step-name">Chart Type Inference</span>
+    <span class="step-badge badge-fast">2ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Infer chart type from query_type and data shape using rule map:</li>
+    </ul>
+    <div class="decision-block">
+      <div class="decision-row"><span class="decision-if">IF</span><span class="decision-cond">time-series data (month column present) + numeric metric</span><span class="decision-then">→ Line chart</span></div>
+      <div class="decision-row"><span class="decision-if">IF</span><span class="decision-cond">categorical comparison (bank names + single metric)</span><span class="decision-then">→ Bar chart</span></div>
+      <div class="decision-row"><span class="decision-if">IF</span><span class="decision-cond">part-of-whole (sector distribution, NPA breakdown)</span><span class="decision-then">→ Pie / Donut chart</span></div>
+      <div class="decision-row"><span class="decision-if">IF</span><span class="decision-cond">multi-metric comparison across banks</span><span class="decision-then">→ Grouped bar / Radar chart</span></div>
+      <div class="decision-row"><span class="decision-if">IF</span><span class="decision-cond">tabular data with no clear visual structure</span><span class="decision-then">→ Formatted table (no chart)</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="step-block active s9">
+  <div class="step-row">
+    <span class="step-idx">9.b</span>
+    <span class="step-name">Client-Side Spec Generation (not server render)</span>
+    <span class="step-badge badge-fast">5ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Generate Chart.js or Vega-Lite specification JSON — do not render to PNG/PDF on server</li>
+      <li>Stream chart spec to frontend immediately — frontend renders in browser (client-side)</li>
+      <li>Perceived render time: ~50ms in browser vs 800-2000ms for server-side image generation</li>
+      <li>Include RBI color palette in spec: risk levels (RED=critical, AMBER=watch, GREEN=healthy)</li>
+      <li>Include data annotations: flag values that exceed RBI thresholds with visual markers</li>
+    </ul>
+    <div class="improve-bar">Client-side rendering saves 800ms+ — spec is 1KB JSON vs 200KB server-rendered PNG</div>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 10: VALIDATOR TOOL -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s10">
+  <div class="section-num">10</div>
+  <div class="section-info">
+    <div class="section-tag">Quality Gate · Tool</div>
+    <div class="section-title">Validator Tool</div>
+  </div>
+</div>
+
+<div class="step-block active s10">
+  <div class="step-row">
+    <span class="step-idx">10.a</span>
+    <span class="step-name">Rule-Based Validation — All Checks (run first)</span>
+    <span class="step-badge badge-fast">10ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Rule 1: Row count non-zero — if 0 rows returned, flag as NO_DATA with suggestion to broaden filter</li>
+      <li>Rule 2: Schema type check — all output field types match expected types from metadata</li>
+      <li>Rule 3: PII field check — scan output for Aadhaar pattern (12 digits), PAN pattern (ABCDE1234F) — block if found</li>
+      <li>Rule 4: Bank ID referential check — all bank_ids in output exist in bank_entities master table</li>
+      <li>Rule 5: Amount sanity check — no amounts below ₹0 or above ₹10,00,000 Cr (likely data error)</li>
+      <li>Rule 6: Date range check — no future dates in historical data fields</li>
+      <li>Rule 7: Cross-source consistency — if same bank_id appears in SQL + NoSQL results, bank_name must match</li>
+      <li>If all 7 rules pass → confidence = 0.95, skip LLM validator entirely</li>
+    </ul>
+    <div class="improve-bar">Rule-first validation: 10ms vs 150ms LLM call — use LLM only when rules detect anomaly</div>
+  </div>
+</div>
+
+<div class="step-block active s10">
+  <div class="step-row">
+    <span class="step-idx">10.b</span>
+    <span class="step-name">Parallel Execution with Synthesizer</span>
+    <span class="step-badge badge-par">Parallel</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Start validation and synthesis simultaneously using <code>asyncio.gather()</code></li>
+      <li>If validation passes (which it does 90%+ of the time) → synthesis draft is already ready — zero additional wait</li>
+      <li>If validation fails → apply corrections to synthesis draft — adds ~50ms fix time</li>
+      <li>LLM validator called only for anomalous results — hallucination check on borrower IDs, amount plausibility, source traceability</li>
+    </ul>
+    <div class="improve-bar">Parallel validation + synthesis — saves 200-300ms for every query</div>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 11: PLANNER AGENT -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s11">
+  <div class="section-num">11</div>
+  <div class="section-info">
+    <div class="section-tag">Orchestration · Agent</div>
+    <div class="section-title">Planner Agent</div>
+  </div>
+</div>
+
+<div class="step-block active s11">
+  <div class="step-row">
+    <span class="step-idx">11.a</span>
+    <span class="step-name">Plan Cache Check</span>
+    <span class="step-badge badge-cache">0ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Generate plan cache key from: <code>query_type + sorted(sources)</code></li>
+      <li>Look up in plan cache — pre-built plans for known query patterns</li>
+      <li>Cache hit → return tool execution plan instantly — skip LLM planning entirely</li>
+      <li>Known plan patterns: <code>fraud_delay_report</code> → [nl_sql, validator, viz] | <code>circular_lookup</code> → [vector_search, synthesizer] | <code>full_risk_dashboard</code> → [nl_sql, nl_nosql, vector_search, validator, viz, synthesizer]</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-block active s11">
+  <div class="step-row">
+    <span class="step-idx">11.b</span>
+    <span class="step-name">LLM Planning (only for novel query patterns)</span>
+    <span class="step-badge badge-med">200ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Prompt includes: L2 classification output, decomposition output, available tools with docstrings, dept access rules, parallel execution capability flag</li>
+      <li>LLM outputs: ordered list of tool calls with parameters, which steps can run in parallel, expected output format for each step, fallback plan if a tool fails</li>
+      <li>Tool docstrings injected into prompt — LLM knows exact input/output contract of each tool</li>
+      <li>Output plan is a DAG (Directed Acyclic Graph) — nodes are tool calls, edges are data dependencies</li>
+      <li>Store new plan in plan cache with 600s TTL</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-block active s11">
+  <div class="step-row">
+    <span class="step-idx">11.c</span>
+    <span class="step-name">Context Assembly</span>
+    <span class="step-badge badge-fast">5ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Assemble full context for executor: query, decomposition, paraphrase, L2 classification, plan, dept rules, session short-term memory</li>
+      <li>Apply context window budgeting: allocate token budget per tool — SQL schema gets 800 tokens, vector context gets 1200 tokens</li>
+      <li>Load relevant short-term memory: last 3 turns of conversation for follow-up awareness</li>
+      <li>Load relevant long-term memory: domain glossary terms found in query, applicable RBI norms</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 12: EXECUTOR AGENT -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s12">
+  <div class="section-num">12</div>
+  <div class="section-info">
+    <div class="section-tag">Execution · Agent</div>
+    <div class="section-title">Executor Agent</div>
+  </div>
+</div>
+
+<div class="step-block active s12">
+  <div class="step-row">
+    <span class="step-idx">12.a</span>
+    <span class="step-name">DAG Execution — Parallel Where Possible</span>
+    <span class="step-badge badge-par">300ms (parallel)</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Parse the planner's DAG — identify which tool calls have no dependencies on each other</li>
+      <li>Fire all independent tool calls simultaneously using <code>asyncio.gather()</code></li>
+      <li>Example for multi-hop query: NL-SQL + NL-NoSQL + Vector Search all fire at same time — total time = slowest single call (~300ms), not sum (~900ms)</li>
+      <li>Dependent tool calls (e.g. join step depends on both SQL and NoSQL results) wait only for their specific dependencies</li>
+      <li>Pass results through connection pool — never open new DB connections mid-execution</li>
+    </ul>
+    <div class="improve-bar">Parallel execution of SQL + NoSQL + Vector — single biggest latency win: 600ms saved on every multi-hop query</div>
+  </div>
+</div>
+
+<div class="step-block active s12">
+  <div class="step-row">
+    <span class="step-idx">12.b</span>
+    <span class="step-name">Error Handling + Fallback Execution</span>
+    <span class="step-badge badge-fast">On failure only</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>If a tool call returns an error → executor does not fail the whole pipeline</li>
+      <li>Timeout threshold: 800ms per individual tool call — if exceeded, mark as TIMEOUT and continue with available results</li>
+      <li>SQL returns 0 rows → executor automatically escalates to vector search for same entity — checks if answer exists in documents</li>
+      <li>Tool failure logged to audit trail — validator notified to flag confidence as LOW for missing source</li>
+      <li>If 2+ tools fail → executor escalates to planner for re-planning with remaining tools</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-block active s12">
+  <div class="step-row">
+    <span class="step-idx">12.c</span>
+    <span class="step-name">Result Collection + Multi-Hop Join</span>
+    <span class="step-badge badge-fast">20ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Collect results from all completed tool calls into a unified result dict keyed by source type</li>
+      <li>For multi-hop queries: perform in-memory inner join on <code>bank_id</code> or <code>account_id</code> — Python pandas merge or simple dict intersection</li>
+      <li>Attach source provenance to each data point — every row knows which tool/source it came from</li>
+      <li>Store complete result set in short-term session memory — enables follow-up queries without re-execution</li>
+      <li>Write full tool call audit log async: tool_name, input_params, output_row_count, latency_ms, timestamp</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="section-rule">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SECTION 13: SYNTHESIZER AGENT -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="section-header s13">
+  <div class="section-num">13</div>
+  <div class="section-info">
+    <div class="section-tag">Output · Agent</div>
+    <div class="section-title">Synthesizer Agent — Final Output</div>
+  </div>
+</div>
+
+<div class="step-block active s13">
+  <div class="step-row">
+    <span class="step-idx">13.a</span>
+    <span class="step-name">Response Synthesis — Streaming Output</span>
+    <span class="step-badge badge-par">200ms to first token</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Start streaming synthesis simultaneously with validation — user sees first tokens while validation is still running</li>
+      <li>Prompt: inject validated results, domain glossary context, query intent, output format requirement (summary/report/visualization/explanation)</li>
+      <li>Apply domain language: replace technical DB values with RBI terminology — DPD > 90 → "NPA Sub-Standard per IRACP norms"</li>
+      <li>Structure output by query type: lookup → prose paragraph | report → table + summary | multi-hop → findings + table + risk flags | visualization → chart spec + narrative</li>
+      <li>Cite every data point with source: "According to core_banking_pg — fraud_reports table"</li>
+      <li>Stream tokens to UI using Server-Sent Events — perceived latency = 200ms to first visible character</li>
+    </ul>
+    <div class="improve-bar">Streaming output: perceived latency drops from 2000ms (full response wait) to 200ms (first token)</div>
+  </div>
+</div>
+
+<div class="step-block active s13">
+  <div class="step-row">
+    <span class="step-idx">13.b</span>
+    <span class="step-name">Confidence Score + Source Citations</span>
+    <span class="step-badge badge-fast">5ms</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Append confidence score at end of response: HIGH (0.9+), MEDIUM (0.7-0.9), LOW (&lt;0.7)</li>
+      <li>Confidence derived from: validation result + source count corroborating the answer + row count returned</li>
+      <li>List all sources queried: table names, collection names, document IDs</li>
+      <li>For LOW confidence: append disclaimer "Recommend manual verification before action"</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step-block active s13">
+  <div class="step-row">
+    <span class="step-idx">13.c</span>
+    <span class="step-name">Memory Update + Audit Log</span>
+    <span class="step-badge badge-fast">Async — non-blocking</span>
+  </div>
+  <div class="step-detail">
+    <ul class="sub-points">
+      <li>Store result summary in short-term session memory — enables follow-up: "show only HIGH risk from above", "export this to PDF"</li>
+      <li>Update long-term query pattern library: if this query type is new, add plan as new pattern for future reuse</li>
+      <li>Write immutable audit log entry: session_id, user_dept, query_hash, tools_called, sources_accessed, row_counts, pii_masked, confidence, total_latency, data_lineage_chain, timestamp</li>
+      <li>Audit write is async and append-only — does not block response delivery to user</li>
+      <li>Proactive suggestion: based on result, suggest 1 follow-up query — "Want me to show the trend for these banks over the last 4 quarters?"</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="section-rule heavy">
+
+<!-- SUMMARY TABLE -->
+<div class="section-header" style="margin-top:32px;">
+  <div class="section-info">
+    <div class="section-tag">Summary</div>
+    <div class="section-title" style="font-family:'Playfair Display',serif; font-size:22px; font-weight:700;">All 13 Components at a Glance</div>
+  </div>
+</div>
+
+<table class="mini-table" style="margin-top:16px;">
+  <tr><th>#</th><th>Component</th><th>Type</th><th>Latency</th><th>Key Improvement</th></tr>
+  <tr><td>1</td><td>Data Creation</td><td>Foundation</td><td>One-time</td><td>Metadata pre-cached in Redis at startup</td></tr>
+  <tr><td>2</td><td>Sample Queries</td><td>Test Harness</td><td>Cached</td><td>Tiered TTL cache — 100% saving on cache hit</td></tr>
+  <tr><td>3</td><td>L1 Intent Classifier</td><td>Gate Tool</td><td>5ms</td><td>Rule-first, LLM fallback — skips LLM 80% of time</td></tr>
+  <tr><td>4</td><td>Decompose + Paraphrase</td><td>NLP Parallel</td><td>200ms</td><td>asyncio.gather() — parallel not sequential</td></tr>
+  <tr><td>5</td><td>L2 Intent Classifier</td><td>Routing Tool</td><td>150ms</td><td>Single LLM call for source + type + plan combined</td></tr>
+  <tr><td>6</td><td>NL-SQL Tool</td><td>Data Tool</td><td>250ms</td><td>AST pre-parse guard + connection pooling</td></tr>
+  <tr><td>7</td><td>NL-NoSQL Tool</td><td>Data Tool</td><td>250ms</td><td>Schema-validated query + motor connection pool</td></tr>
+  <tr><td>8</td><td>Vector Search Tool</td><td>Data Tool</td><td>30ms</td><td>BM25 pre-filter + dense search on subset only</td></tr>
+  <tr><td>9</td><td>Visualization Tool</td><td>Output Tool</td><td>5ms</td><td>Client-side chart spec — not server-rendered image</td></tr>
+  <tr><td>10</td><td>Validator Tool</td><td>Quality Gate</td><td>10ms</td><td>Rule-first validation + parallel with synthesizer</td></tr>
+  <tr><td>11</td><td>Planner Agent</td><td>Orchestration</td><td>5-200ms</td><td>Plan cache — 0ms for known patterns</td></tr>
+  <tr><td>12</td><td>Executor Agent</td><td>Execution</td><td>300ms</td><td>DAG parallel execution — biggest single win</td></tr>
+  <tr><td>13</td><td>Synthesizer Agent</td><td>Output Agent</td><td>200ms first token</td><td>Streaming output — perceived latency 10x better</td></tr>
+</table>
+
+<div style="margin-top:32px; padding:16px 20px; background:var(--ink); color:var(--paper); border-radius:4px; font-size:13px; line-height:1.7;">
+  <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px; color:#64748b; display:block; margin-bottom:8px;">BOTTOM LINE</span>
+  Total latency reduced from <strong style="color:#fbbf24;">~2,950ms</strong> (sequential baseline) to <strong style="color:#4ade80;">~860ms</strong> (optimized parallel) — a <strong style="color:#60a5fa;">71% reduction</strong> achieved through three compounding strategies: <em>parallel execution</em> (Sections 4, 12), <em>multi-layer caching</em> (Sections 2, 5, 8, 11), and <em>rule-first LLM fallback</em> (Sections 3, 10).
+</div>
+
+</div><!-- /page -->
+</body>
+</html>

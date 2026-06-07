@@ -1,0 +1,79 @@
+[
+  {
+    "role": "risk_analyst",
+    "region_scope": "all",
+    "allowed_sources": [
+      "bank_entities",
+      "npa_accounts",
+      "fraud_reports",
+      "bank_inspection_reports",
+      "rbi_circulars_registry",
+      "supervisory_alerts",
+      "bank_returns_submissions",
+      "vector_db"
+    ],
+    "denied_fields": [
+      "borrower_name",
+      "complaint_text"
+    ],
+    "max_rows_per_query": 500,
+    "allowed_operations": ["READ"]
+  },
+  {
+    "role": "compliance_officer",
+    "region_scope": "all",
+    "allowed_sources": [
+      "bank_entities",
+      "fraud_reports",
+      "bank_inspection_reports",
+      "penalty_orders",
+      "rbi_circulars_registry",
+      "bank_complaints",
+      "supervisory_alerts",
+      "bank_returns_submissions",
+      "vector_db"
+    ],
+    "denied_fields": [
+      "borrower_name",
+      "complaint_text"
+    ],
+    "max_rows_per_query": 1000,
+    "allowed_operations": ["READ"]
+  },
+  {
+    "role": "fintech_analyst",
+    "region_scope": "all",
+    "allowed_sources": [
+      "bank_entities",
+      "rbi_circulars_registry",
+      "digital_payment_metrics",
+      "bank_complaints",
+      "vector_db"
+    ],
+    "denied_fields": [
+      "borrower_name"
+    ],
+    "max_rows_per_query": 500,
+    "allowed_operations": ["READ"]
+  },
+  {
+    "role": "executive_officer",
+    "region_scope": "all",
+    "allowed_sources": [
+      "bank_entities",
+      "npa_accounts",
+      "fraud_reports",
+      "bank_inspection_reports",
+      "penalty_orders",
+      "rbi_circulars_registry",
+      "digital_payment_metrics",
+      "bank_complaints",
+      "supervisory_alerts",
+      "bank_returns_submissions",
+      "vector_db"
+    ],
+    "denied_fields": [],
+    "max_rows_per_query": 5000,
+    "allowed_operations": ["READ", "EXPORT"]
+  }
+]

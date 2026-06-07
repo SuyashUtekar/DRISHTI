@@ -1,0 +1,166 @@
+import os
+import json
+import re
+from typing import Dict, List, Any, Optional
+
+class LongTermMemoryManager:
+    def __init__(self, base_dir: Optional[str] = None):
+        """
+        Initializes the Long Term Memory Manager.
+        :param base_dir: Absolute path to the folder containing 'long_term_memory' directory.
+                         If None, searches relative to the script location.
+        """
+        if base_dir is None:
+            # Default to the directory of this script
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        self.ltm_dir = os.path.join(base_dir, "long_term_memory")
+        self.source_registry: List[Dict[str, Any]] = []
+        self.schema_store: Dict[str, Dict[str, Any]] = {}
+        self.domain_glossary: List[Dict[str, Any]] = []
+        self.compliance_rules: List[Dict[str, Any]] = []
+        self.query_patterns: List[Dict[str, Any]] = []
+        self.routing_rules: List[Dict[str, Any]] = []
+        
+        self.load_all()
+
+    def _load_json_file(self, filename: str) -> Any:
+        file_path = os.path.join(self.ltm_dir, filename)
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"LTM file not found: {file_path}")
+        with open(file_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def load_all(self) -> None:
+        """Loads all LTM files into memory."""
+        self.source_registry = self._load_json_file("source_registry.json")
+        self.schema_store = self._load_json_file("schema_store.json")
+        self.domain_glossary = self._load_json_file("domain_glossary.json")
+        self.compliance_rules = self._load_json_file("compliance_rules.json")
+        self.query_patterns = self._load_json_file("query_patterns.json")
+        self.routing_rules = self._load_json_file("routing_rules.json")
+
+    # --- SOURCE REGISTRY APIs ---
+    def get_source(self, source_id: str) -> Optional[Dict[str, Any]]:
+        """Retrieves details of a registered source by ID."""
+        for src in self.source_registry:
+            if src["source_id"] == source_id:
+                return src
+        return None
+
+    def get_all_sources(self) -> List[Dict[str, Any]]:
+        """Returns all registered sources."""
+        return self.source_registry
+
+    # --- SCHEMA STORE APIs ---
+    def get_schema(self, source_id: str) -> Optional[Dict[str, Any]]:
+        """Retrieves the schema definition (columns/fields and join keys) for a source."""
+        return self.schema_store.get(source_id)
+
+    # --- DOMAIN GLOSSARY APIs ---
+    def resolve_domain_terms(self, query_text: str) -> List[Dict[str, Any]]:
+        """
+        Scans a query for business terms in the glossary.
+        Returns entries matching terms found in the query text.
+        """
+        matched_terms = []
+        # Case-insensitive matching
+        query_text_lower = query_text.lower()
+        for entry in self.domain_glossary:
+            term = entry["term"].lower()
+            # Match whole word or exact substring
+            pattern = rf"\b{re.escape(term)}\b"
+            if re.search(pattern, query_text_lower):
+                matched_terms.append(entry)
+        return matched_terms
+
+    # --- COMPLIANCE RULES APIs ---
+    def get_compliance_rule(self, role: str) -> Optional[Dict[str, Any]]:
+        """Retrieves access control rules for a specific role."""
+        for rule in self.compliance_rules:
+            if rule["role"] == role:
+                return rule
+        return None
+
+    def enforce_access(self, role: str, source_id: str, fields: List[str]) -> Dict[str, Any]:
+        """
+        Checks if a user role is allowed to access a source, and determines
+        which fields should be masked or restricted.
+        """
+        rule = self.get_compliance_rule(role)
+        if not rule:
+            return {"allowed": False, "reason": f"Role '{role}' is not defined in compliance rules."}
+        
+        if source_id not in rule["allowed_sources"]:
+            return {"allowed": False, "reason": f"Access to source '{source_id}' is denied for role '{role}'."}
+        
+        denied_fields = rule.get("denied_fields", [])
+        accessed_denied = [f for f in fields if f in denied_fields]
+        
+        return {
+            "allowed": True,
+            "denied_fields_accessed": accessed_denied,
+            "mask_fields": denied_fields,
+            "max_rows": rule.get("max_rows_per_query", 100)
+        }
+
+    # --- QUERY PATTERN LIBRARY APIs ---
+    def get_query_pattern(self, pattern_id: str) -> Optional[Dict[str, Any]]:
+        """Fetches a pre-defined query pattern by ID."""
+        for pattern in self.query_patterns:
+            if pattern["pattern_id"] == pattern_id:
+                return pattern
+        return None
+
+    def match_query_pattern(self, sources: List[str]) -> Optional[Dict[str, Any]]:
+        """
+        Matches a set of sources to a pre-defined query pattern to leverage cached execution plans.
+        """
+        sorted_sources = sorted(sources)
+        for pattern in self.query_patterns:
+            if sorted(pattern["sources"]) == sorted_sources:
+                return pattern
+        return None
+
+    # --- ROUTING RULES APIs ---
+    def match_routing_signal(self, query_text: str) -> List[Dict[str, Any]]:
+        """
+        Matches keywords/signals in the query to routing destinations (SQL, NoSQL, VectorDB).
+        Returns matching routing rules sorted by confidence descending.
+        """
+        matches = []
+        for rule in self.routing_rules:
+            pattern = re.compile(rule["signal"], re.IGNORECASE)
+            if pattern.search(query_text):
+                matches.append(rule)
+        
+        # Sort by confidence descending
+        matches.sort(key=lambda x: x["confidence"], reverse=True)
+        return matches
+
+if __name__ == "__main__":
+    # Test execution when run directly
+    print("Testing LTM Manager loading...")
+    try:
+        manager = LongTermMemoryManager()
+        print("Successfully loaded all memory stores!")
+        print(f"Sources Registered: {len(manager.get_all_sources())}")
+        
+        # Test routing signal
+        signals = manager.match_routing_signal("show me reports and circulars of bad loans")
+        print("\nRouting Signals for 'show me reports and circulars of bad loans':")
+        for s in signals:
+            print(f"- Route: {s['route']} (Confidence: {s['confidence']}) because of: '{s['signal']}'")
+            
+        # Test domain glossary resolution
+        terms = manager.resolve_domain_terms("What is the exposure and NPA of SBI?")
+        print("\nDomain Terms Resolved for 'What is the exposure and NPA of SBI?':")
+        for t in terms:
+            print(f"- {t['term']}: {t['definition']}")
+            
+        # Test compliance check
+        access = manager.enforce_access("risk_analyst", "npa_accounts", ["account_id", "borrower_name", "outstanding_amt_cr"])
+        print("\nCompliance Check for risk_analyst on npa_accounts:")
+        print(access)
+    except Exception as e:
+        print(f"Error loading LTM stores: {e}")

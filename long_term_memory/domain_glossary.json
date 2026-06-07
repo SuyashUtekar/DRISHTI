@@ -1,0 +1,77 @@
+[
+  {
+    "term": "NPA",
+    "definition": "Non-Performing Asset - Loan account with DPD > 90 days per RBI IRACP norms",
+    "technical_condition": "dpd > 90"
+  },
+  {
+    "term": "overdue",
+    "definition": "Accounts with DPD > 0",
+    "technical_condition": "dpd > 0"
+  },
+  {
+    "term": "sub-standard",
+    "definition": "NPA account with classification between 90 and 365 days past due",
+    "technical_condition": "npa_category = 'SUB_STANDARD' or (dpd > 90 and dpd <= 365)"
+  },
+  {
+    "term": "doubtful",
+    "definition": "NPA account outstanding for more than 1 year (classified as DOUBTFUL_1 or DOUBTFUL_2)",
+    "technical_condition": "npa_category in ('DOUBTFUL_1', 'DOUBTFUL_2') or (dpd > 365)"
+  },
+  {
+    "term": "loss",
+    "definition": "NPA account identified as loss asset by bank or RBI inspectors, uncollectible",
+    "technical_condition": "npa_category = 'LOSS' or provisioning_pct = 100.0"
+  },
+  {
+    "term": "exposure",
+    "definition": "Outstanding principal + accrued interest (usually outstanding_amt_cr)",
+    "technical_condition": "outstanding_amt_cr"
+  },
+  {
+    "term": "high risk",
+    "definition": "Accounts with active fraud reports or EWS alerts and overdue status",
+    "technical_condition": "fraud_flagged = true and dpd > 90"
+  },
+  {
+    "term": "DPD",
+    "definition": "Days Past Due - the number of days a payment is overdue",
+    "technical_condition": "dpd"
+  },
+  {
+    "term": "CAMELS",
+    "definition": "Capital adequacy, Asset quality, Management, Earnings, Liquidity, Systems rating (Scale 1 to 5, where 1 is best and 5 is worst)",
+    "technical_condition": "camels_rating"
+  },
+  {
+    "term": "bad CAMELS",
+    "definition": "Inspection ratings of 4 or 5 requiring corrective actions",
+    "technical_condition": "camels_rating >= 4"
+  },
+  {
+    "term": "AFI",
+    "definition": "Annual Financial Inspection conducted by the RBI under Section 35 of the Banking Regulation Act",
+    "technical_condition": "inspection_type = 'AFI'"
+  },
+  {
+    "term": "FMRS",
+    "definition": "Fraud Monitoring Return System for reporting bank fraud to RBI",
+    "technical_condition": "fraud_reports"
+  },
+  {
+    "term": "reporting delay",
+    "definition": "Difference between date of detection and date of reporting to RBI",
+    "technical_condition": "reporting_delay_days"
+  },
+  {
+    "term": "reporting delay violation",
+    "definition": "Fraud reporting delay exceeding 21 days from detection (RBI FMRS violation)",
+    "technical_condition": "reporting_delay_days > 21"
+  },
+  {
+    "term": "evergreening",
+    "definition": "Fictional or artificial restructuring of credit to avoid classification as NPA",
+    "technical_condition": "major_findings LIKE '%evergreening%'"
+  }
+]

@@ -1,0 +1,89 @@
+Long Term Memory Creation:
+
+1. Source Registry (most critical)
+This is the lookup table the Router Agent queries first.
+
+{
+  "source_id": "loans_table",
+  "type": "SQL",
+  "db": "core_banking_pg",
+  "description": "Active loan accounts, DPD, outstanding amounts",
+  "entities": ["borrower_id", "loan_amount", "dpd", "branch", "status"],
+  "query_method": "text_to_sql",
+  "access_scope": ["risk_analyst", "branch_manager"],
+  "mcp_connector": "core_banking_mcp"
+}
+
+One record per data source in your org. Every source — SQL table, MongoDB collection, PDF index — registered here. The agent never guesses where data lives.
+
+
+
+2. Schema Store
+The exact table/collection schemas so the Text-to-SQL agent generates valid queries without hallucinating column names.
+
+{
+  "source_id": "loans_table",
+  "columns": [
+    {"name": "borrower_id", "type": "UUID", "pii": false},
+    {"name": "pan_number",  "type": "VARCHAR", "pii": true},
+    {"name": "dpd",         "type": "INTEGER", "pii": false},
+    {"name": "outstanding_amt", "type": "DECIMAL", "pii": false}
+  ],
+  "join_keys": {"complaints": "borrower_id", "fraud_flags": "borrower_id"}
+}
+
+Also stores which fields are PII — so the masking rule is automatic, not manually coded each time.
+
+
+
+3. Domain Glossary / Business Rules Store
+Maps business language → technical conditions. This is what lets the agent understand "risky accounts" or "NPA" without asking the user.
+
+{"term": "NPA",           "definition": "DPD > 90 days per RBI IRACP norms"},
+{"term": "overdue",       "definition": "DPD > 0"},
+{"term": "sub-standard",  "definition": "NPA between 90-365 days"},
+{"term": "exposure",      "definition": "outstanding_principal + accrued_interest"},
+{"term": "high risk",     "definition": "fraud_flagged=true AND dpd > 90"}
+
+Without this, the agent either asks clarifying questions every time or worse — guesses wrong.
+
+
+
+4. Compliance & Access Control Rules
+What each role can and cannot see. The agent enforces this automatically during query generation.
+
+{
+  "role": "risk_analyst",
+  "region_scope": "assigned_branch_only",
+  "allowed_sources": ["loans_table", "complaints_store", "fraud_flags"],
+  "denied_fields": ["aadhaar", "pan_number", "mobile_number"],
+  "max_rows_per_query": 500,
+  "allowed_operations": ["READ"]
+}
+
+
+
+5. Query Pattern Library (saves huge time)
+Successful past query plans, stored so the agent reuses them instead of replanning from scratch.
+
+{
+  "pattern_id": "fraud_overdue_join",
+  "description": "Find borrowers matching fraud + overdue + complaint",
+  "sources": ["fraud_flags", "loans_table", "complaints_store"],
+  "join_key": "borrower_id",
+  "execution_plan": "vector_search → sql_execute → nosql_query → inner_join",
+  "avg_latency_ms": 1180,
+  "success_rate": 0.96
+}
+
+When a new query matches a known pattern, the agent skips replanning entirely — 3x faster.
+
+
+
+6. Routing Signal Rules Store
+The explicit signal → source type mappings the Router Agent uses.
+
+{"signal": "report|circular|document|email|PDF", "route": "vector_db", "confidence": 0.92},
+{"signal": "count|sum|average|filter|list all",  "route": "sql",       "confidence": 0.95},
+{"signal": "events|logs|activity|flexible",      "route": "nosql",     "confidence": 0.88},
+{"signal": "similar to|related|what does.*say",  "route": "vector_db", "confidence": 0.90}

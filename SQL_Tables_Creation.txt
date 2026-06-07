@@ -1,0 +1,132 @@
+SQL Tables (Structured Data)
+
+6 tables — cover the core banking supervision workflow
+
+Table 1 — bank_entities
+Master registry of all banks RBI supervises.
+
+CREATE TABLE bank_entities (
+  bank_id         VARCHAR(10) PRIMARY KEY,  -- e.g. BNK-001
+  bank_name       VARCHAR(100),             -- "Punjab National Bank"
+  bank_type       VARCHAR(30),              -- PSB / PVT / RRB / UCB / NBFC
+  hq_city         VARCHAR(50),
+  total_assets_cr DECIMAL(14,2),
+  license_status  VARCHAR(20),              -- ACTIVE / WATCH / SUSPENDED
+  rbi_zone        VARCHAR(20),              -- North / South / East / West
+  registered_on   DATE
+);
+
+
+Dummy rows to create: 25 banks — mix of PSBs (SBI, PNB), private (HDFC, ICICI), RRBs, 3 UCBs, 2 NBFCs
+
+Table 2 — npa_accounts
+Core NPA monitoring — most used by DEPT_RISK.
+
+CREATE TABLE npa_accounts (
+  account_id        VARCHAR(15) PRIMARY KEY,
+  bank_id           VARCHAR(10) REFERENCES bank_entities,
+  borrower_name     VARCHAR(100),
+  borrower_type     VARCHAR(20),   -- INDIVIDUAL / MSME / CORPORATE
+  loan_type         VARCHAR(30),   -- HOME / AGRI / CORPORATE / MSME
+  sanctioned_amt_cr DECIMAL(10,2),
+  outstanding_amt_cr DECIMAL(10,2),
+  dpd               INTEGER,       -- Days Past Due
+  npa_category      VARCHAR(20),   -- SUB_STANDARD / DOUBTFUL_1 / DOUBTFUL_2 / LOSS
+  classification_date DATE,
+  provisioning_pct  DECIMAL(5,2),  -- 15 / 25 / 40 / 100
+  city              VARCHAR(50),
+  sector            VARCHAR(40)    -- INFRASTRUCTURE / REAL_ESTATE / AGRI / TEXTILE
+);
+
+Dummy rows: 200 accounts — spread across banks, sectors, NPA categories
+
+Table 3 — fraud_reports
+Filed by banks under FMRS (Fraud Monitoring Return System).
+
+CREATE TABLE fraud_reports (
+  fraud_id        VARCHAR(15) PRIMARY KEY,
+  bank_id         VARCHAR(10) REFERENCES bank_entities,
+  account_id      VARCHAR(15),
+  fraud_type      VARCHAR(40),  -- DIVERSION / KYC_FRAUD / CYBER / INCOME_INFLATION
+  amount_cr       DECIMAL(10,2),
+  detected_date   DATE,
+  reported_date   DATE,
+  reporting_delay_days INTEGER,
+  fir_filed       BOOLEAN,
+  recovery_amt_cr DECIMAL(10,2),
+  status          VARCHAR(20),  -- UNDER_INVESTIGATION / CLOSED / ESCALATED
+  sarfaesi_applied BOOLEAN
+);
+
+
+Dummy rows: 80 fraud cases — include 10 with reporting_delay > 21 days (RBI violation trigger)
+
+Table 4 — bank_inspection_reports
+Annual Financial Inspection (AFI) results.
+
+CREATE TABLE bank_inspection_reports (
+  inspection_id   VARCHAR(15) PRIMARY KEY,
+  bank_id         VARCHAR(10) REFERENCES bank_entities,
+  inspection_year INTEGER,
+  inspection_type VARCHAR(20),   -- AFI / SPECIAL / THEMATIC
+  camels_rating   INTEGER,       -- 1-5 (1=best)
+  capital_score   INTEGER,
+  asset_score     INTEGER,
+  mgmt_score      INTEGER,
+  earnings_score  INTEGER,
+  liquidity_score INTEGER,
+  systems_score   INTEGER,
+  major_findings  TEXT,
+  corrective_action_required BOOLEAN,
+  next_inspection_due DATE
+);
+
+
+Dummy rows: 40 inspection records — include 5 banks with CAMELS rating 4-5 for drama
+
+Table 5 — penalty_orders
+Penalties imposed by RBI on banks — DEPT_COMPLY bread and butter.
+
+CREATE TABLE penalty_orders (
+  penalty_id      VARCHAR(15) PRIMARY KEY,
+  bank_id         VARCHAR(10) REFERENCES bank_entities,
+  penalty_date    DATE,
+  violation_type  VARCHAR(60),  -- KYC_NON_COMPLIANCE / FRAUD_DELAY / CAPITAL_BREACH
+  penalty_amt_lakh DECIMAL(8,2),
+  circular_ref VARCHAR(30) REFERENCES rbi_circulars_registry,
+  compliance_deadline DATE,
+  complied        BOOLEAN,
+  remarks         TEXT
+);
+
+
+Dummy rows: 50 penalties — include 8 uncomplied ones for escalation scenarios
+
+Table 6 - rbi_circulars_registry
+
+CREATE TABLE rbi_circulars_registry (
+  circular_ref    VARCHAR(30) PRIMARY KEY,  -- RBI/2023-24/85
+  circular_title  VARCHAR(200),
+  issued_date     DATE,
+  department      VARCHAR(50),
+  subject         VARCHAR(200)
+);
+
+Table 7 — digital_payment_metrics
+For DEPT_FINTECH — UPI, NEFT, RTGS volumes.
+
+CREATE TABLE digital_payment_metrics (
+  metric_id       SERIAL PRIMARY KEY,
+  bank_id         VARCHAR(10) REFERENCES bank_entities,
+  month           DATE,          -- first day of month
+  upi_txn_count   BIGINT,
+  upi_txn_val_cr  DECIMAL(14,2),
+  neft_txn_count  BIGINT,
+  rtgs_txn_val_cr DECIMAL(14,2),
+  failed_txn_pct  DECIMAL(5,2),
+  system_uptime_pct DECIMAL(5,2),
+  cyber_incidents INTEGER
+);
+
+
+Dummy rows: 25 banks × 12 months = 300 rows

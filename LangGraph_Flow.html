@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LangGraph Flow — RBI Agentic AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0b0c10;
+  --surface:  #111318;
+  --surface2: #181c24;
+  --border:   #1e2433;
+  --border2:  #2a3248;
+  --text:     #dde2ef;
+  --muted:    #5a6380;
+  --dim:      #3a4260;
+
+  /* Node colors */
+  --state:    #e8c547;
+  --node:     #4a9eff;
+  --tool:     #52d48a;
+  --cond:     #f07040;
+  --agent:    #b07fff;
+  --end:      #ff6b8a;
+
+  /* Glow versions */
+  --state-g:  #e8c54730;
+  --node-g:   #4a9eff25;
+  --tool-g:   #52d48a25;
+  --cond-g:   #f0704025;
+  --agent-g:  #b07fff25;
+  --end-g:    #ff6b8a25;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Instrument Sans', sans-serif;
+  min-height: 100vh;
+  padding: 0 0 80px;
+}
+
+/* grid bg */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.4;
+  pointer-events:none;
+}
+
+.wrap { max-width: 1100px; margin:0 auto; padding: 0 24px; position:relative; }
+
+/* ── HEADER ── */
+header {
+  padding: 48px 0 40px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+.header-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.header-left {}
+.eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--node);
+  margin-bottom: 12px;
+}
+h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+h1 .accent { color: var(--state); font-style: italic; }
+
+.header-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.hstat {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-family: 'Space Mono', monospace;
+}
+.hstat-val { font-size: 20px; font-weight: 700; display: block; }
+.hstat-lbl { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+.hstat-val.c-state { color: var(--state); }
+.hstat-val.c-node  { color: var(--node);  }
+.hstat-val.c-tool  { color: var(--tool);  }
+.hstat-val.c-cond  { color: var(--cond);  }
+
+/* ── LEGEND ── */
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  margin-bottom: 36px;
+}
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+.leg-dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── STATE SCHEMA ── */
+.state-box {
+  background: var(--surface);
+  border: 1px solid var(--state);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 36px;
+  box-shadow: 0 0 32px var(--state-g);
+  position: relative;
+}
+.state-box::before {
+  content: 'STATE SCHEMA · TypedDict';
+  position: absolute;
+  top: -10px; left: 16px;
+  background: var(--bg);
+  padding: 0 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--state);
+  letter-spacing: 2px;
+}
+.state-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+.state-field {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 8px;
+  background: var(--surface2);
+  border-radius: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+}
+.sf-name { color: var(--node); }
+.sf-type { color: var(--muted); font-size: 10px; }
+.sf-desc { color: var(--dim); font-size: 9px; flex:1; text-align:right; }
+
+/* ── SECTION HEADING ── */
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 40px 0 20px;
+}
+.phase-num {
+  font-family: 'Fraunces', serif;
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--border2);
+  line-height: 1;
+  min-width: 40px;
+}
+.phase-info {}
+.phase-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.phase-title {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── NODE CARD ── */
+.node-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.node-card:hover { border-color: var(--border2); }
+
+.node-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+.node-card.open .node-header { border-bottom-color: var(--border); }
+
+.node-type-pill {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.pill-node  { background: var(--node-g);  color: var(--node);  border:1px solid #4a9eff40; }
+.pill-tool  { background: var(--tool-g);  color: var(--tool);  border:1px solid #52d48a40; }
+.pill-cond  { background: var(--cond-g);  color: var(--cond);  border:1px solid #f0704040; }
+.pill-agent { background: var(--agent-g); color: var(--agent); border:1px solid #b07fff40; }
+.pill-state { background: var(--state-g); color: var(--state); border:1px solid #e8c54740; }
+.pill-end   { background: var(--end-g);   color: var(--end);   border:1px solid #ff6b8a40; }
+
+.node-name {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.node-function {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+.node-latency {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--tool);
+  text-align: right;
+}
+.node-chevron {
+  color: var(--muted);
+  font-size: 12px;
+  transition: transform 0.25s;
+}
+.node-card.open .node-chevron { transform: rotate(180deg); }
+
+/* ── NODE BODY ── */
+.node-body {
+  display: none;
+  padding: 18px 20px 20px;
+}
+.node-card.open .node-body { display: block; }
+
+/* State In/Out */
+.state-flow {
+  display: grid;
+  grid-template-columns: 1fr 20px 1fr;
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+.sf-panel {
+  background: var(--surface2);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+.sf-panel-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.sf-panel-label.in  { color: var(--node); }
+.sf-panel-label.out { color: var(--tool); }
+.sf-arrow { display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:16px; padding-top:30px; }
+.sf-key {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 0;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+}
+.sf-key-name { color: var(--node); }
+.sf-key-val  { color: var(--dim);  font-size: 9px; }
+
+/* Steps list */
+.steps-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.step-list { list-style: none; }
+.step-list > li {
+  display: flex;
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 1.55;
+  color: #b0b8d0;
+}
+.step-list > li:last-child { border-bottom: none; }
+.step-list > li::before {
+  content: attr(data-n);
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  min-width: 20px;
+  padding-top: 3px;
+  flex-shrink: 0;
+}
+.step-list li strong { color: var(--text); }
+.step-list li code {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  background: var(--surface2);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--node);
+}
+
+/* sub steps */
+.sub-list { list-style:none; padding-left:20px; margin-top:4px; }
+.sub-list li {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 2px 0;
+  position: relative;
+  padding-left: 12px;
+}
+.sub-list li::before { content:'·'; position:absolute; left:0; color:var(--dim); }
+
+/* Conditional routing table */
+.routing-table {
+  background: var(--surface2);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.routing-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 180px;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.routing-row:last-child { border-bottom: none; }
+.routing-row.header { background: var(--surface); font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1px; }
+.routing-cell { padding: 8px 12px; }
+.routing-cell.condition { color: var(--cond); font-family:'Space Mono',monospace; font-size:10px; }
+.routing-cell.logic { color: var(--text); }
+.routing-cell.target { color: var(--node); font-family:'Space Mono',monospace; font-size:10px; }
+
+/* Parallel block */
+.parallel-wrap {
+  border: 1px dashed var(--agent);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 10px 0;
+  position: relative;
+}
+.parallel-tag {
+  position: absolute;
+  top: -10px; left: 12px;
+  background: var(--bg);
+  padding: 0 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--agent);
+  letter-spacing: 2px;
+}
+.parallel-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-top: 6px;
+}
+.par-col {
+  background: var(--surface2);
+  border-radius: 5px;
+  padding: 10px 12px;
+}
+.par-col-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.par-col ul { list-style:none; }
+.par-col ul li { font-size: 11px; color:var(--muted); padding: 2px 0; padding-left:10px; position:relative; }
+.par-col ul li::before { content:'→'; position:absolute; left:0; font-size:9px; color:var(--dim); }
+
+/* Improvement tag */
+.improv {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1a2010;
+  border: 1px solid #2d4a1a;
+  border-radius: 4px;
+  padding: 7px 12px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--tool);
+}
+.improv::before { content:'⚡'; flex-shrink:0; }
+
+/* Edge flow */
+.edge-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 20px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+.edge-line::before, .edge-line::after { content:''; flex:1; height:1px; background:var(--border); }
+.edge-line .arrow { color: var(--node); font-size:14px; }
+.edge-line .label { color: var(--cond); }
+
+/* Graph overview */
+.graph-overview {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 36px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  line-height: 2.2;
+  overflow-x: auto;
+}
+.go-node { color: var(--node); }
+.go-tool { color: var(--tool); }
+.go-cond { color: var(--cond); }
+.go-agent{ color: var(--agent);}
+.go-state{ color: var(--state);}
+.go-end  { color: var(--end);  }
+.go-arrow{ color: var(--muted);}
+.go-label{ color: var(--dim); font-size:9px; }
+
+/* divider */
+hr.div { border:none; border-top:1px solid var(--border); margin: 32px 0; }
+
+@media(max-width:600px){
+  .parallel-cols { grid-template-columns:1fr; }
+  .routing-row { grid-template-columns:1fr 1fr; }
+  .routing-row .routing-cell:last-child { grid-column:span 2; }
+  .state-grid { grid-template-columns:1fr; }
+  .state-flow { grid-template-columns:1fr; }
+  .sf-arrow { display:none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="eyebrow">LangGraph Architecture · RBI Agentic AI Hackathon 2026</div>
+      <h1>Complete <span class="accent">LangGraph</span><br>Flow & Node Design</h1>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="hstat"><span class="hstat-val c-node">13</span><span class="hstat-lbl">Graph Nodes</span></div>
+    <div class="hstat"><span class="hstat-val c-tool">10</span><span class="hstat-lbl">Tool Nodes</span></div>
+    <div class="hstat"><span class="hstat-val c-cond">4</span><span class="hstat-lbl">Conditional Edges</span></div>
+    <div class="hstat"><span class="hstat-val c-state">1</span><span class="hstat-lbl">Shared State</span></div>
+  </div>
+</header>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:var(--state)"></div>State Schema</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--node)"></div>Graph Node (function)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--tool)"></div>Tool Node</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--cond)"></div>Conditional Edge</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--agent)"></div>Agent Node (LLM)</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--end)"></div>END / Terminal</div>
+</div>
+
+<!-- STATE SCHEMA -->
+<div class="state-box">
+  <div class="state-grid">
+    <div class="state-field"><span class="sf-name">query</span><span class="sf-type">str</span><span class="sf-desc">raw user input</span></div>
+    <div class="state-field"><span class="sf-name">dept</span><span class="sf-type">str</span><span class="sf-desc">user department</span></div>
+    <div class="state-field"><span class="sf-name">session_id</span><span class="sf-type">str</span><span class="sf-desc">session UUID</span></div>
+    <div class="state-field"><span class="sf-name">is_valid</span><span class="sf-type">bool</span><span class="sf-desc">L1 gate result</span></div>
+    <div class="state-field"><span class="sf-name">invalid_reason</span><span class="sf-type">str|None</span><span class="sf-desc">rejection reason</span></div>
+    <div class="state-field"><span class="sf-name">decomposition</span><span class="sf-type">dict</span><span class="sf-desc">entities, filters, sub-queries</span></div>
+    <div class="state-field"><span class="sf-name">paraphrases</span><span class="sf-type">list[str]</span><span class="sf-desc">formal + keyword versions</span></div>
+    <div class="state-field"><span class="sf-name">sources</span><span class="sf-type">list[str]</span><span class="sf-desc">sql/nosql/vector</span></div>
+    <div class="state-field"><span class="sf-name">query_type</span><span class="sf-type">str</span><span class="sf-desc">report/lookup/viz/multi_hop</span></div>
+    <div class="state-field"><span class="sf-name">execution_plan</span><span class="sf-type">list[str]</span><span class="sf-desc">ordered tool calls</span></div>
+    <div class="state-field"><span class="sf-name">sql_result</span><span class="sf-type">dict|None</span><span class="sf-desc">rows + metadata</span></div>
+    <div class="state-field"><span class="sf-name">nosql_result</span><span class="sf-type">dict|None</span><span class="sf-desc">docs + metadata</span></div>
+    <div class="state-field"><span class="sf-name">vector_result</span><span class="sf-type">dict|None</span><span class="sf-desc">chunks + scores</span></div>
+    <div class="state-field"><span class="sf-name">joined_result</span><span class="sf-type">dict|None</span><span class="sf-desc">merged multi-hop data</span></div>
+    <div class="state-field"><span class="sf-name">validation_status</span><span class="sf-type">str</span><span class="sf-desc">PASS/FAIL/LOW_CONF</span></div>
+    <div class="state-field"><span class="sf-name">confidence</span><span class="sf-type">float</span><span class="sf-desc">0.0 – 1.0</span></div>
+    <div class="state-field"><span class="sf-name">viz_spec</span><span class="sf-type">dict|None</span><span class="sf-desc">chart.js spec</span></div>
+    <div class="state-field"><span class="sf-name">final_response</span><span class="sf-type">str</span><span class="sf-desc">synthesized answer</span></div>
+    <div class="state-field"><span class="sf-name">audit_log</span><span class="sf-type">list[dict]</span><span class="sf-desc">append-only trace</span></div>
+    <div class="state-field"><span class="sf-name">error</span><span class="sf-type">str|None</span><span class="sf-desc">error message</span></div>
+  </div>
+</div>
+
+<!-- GRAPH OVERVIEW -->
+<div class="graph-overview">
+  <span class="go-state">START</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-node">l1_classifier</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-cond">route_l1</span>
+  <span class="go-arrow"> ──[VALID]──→ </span>
+  <span class="go-node">decompose_and_paraphrase</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-node">l2_classifier</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-agent">planner_agent</span><br>
+  <span style="padding-left:380px;" class="go-arrow">↓</span><br>
+  <span style="padding-left:220px;" class="go-cond">route_sources</span>
+  <span class="go-arrow"> ──[SQL only]──→ </span>
+  <span class="go-tool">nl_sql_tool</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-node">validator_node</span><br>
+  <span style="padding-left:220px;"></span>
+  <span class="go-arrow">          ──[NoSQL only]──→ </span>
+  <span class="go-tool">nl_nosql_tool</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-node">validator_node</span><br>
+  <span style="padding-left:220px;"></span>
+  <span class="go-arrow">          ──[Vector only]──→ </span>
+  <span class="go-tool">vector_search_tool</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-node">validator_node</span><br>
+  <span style="padding-left:220px;"></span>
+  <span class="go-arrow">          ──[multi_hop]──→ </span>
+  <span class="go-node">parallel_executor</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-node">join_results</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-node">validator_node</span><br>
+  <span style="padding-left:600px;" class="go-arrow">↓</span><br>
+  <span style="padding-left:500px;" class="go-cond">route_validator</span>
+  <span class="go-arrow"> ──[PASS]──→ </span>
+  <span class="go-node">viz_tool</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-agent">synthesizer_agent</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-node">audit_logger</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-end">END</span><br>
+  <span style="padding-left:500px;"></span>
+  <span class="go-arrow">          ──[FAIL]──→ </span>
+  <span class="go-node">error_handler</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-end">END</span><br>
+  <span style="padding-left:220px;"></span>
+  <span class="go-cond">route_l1</span>
+  <span class="go-arrow"> ──[INVALID]──→ </span>
+  <span class="go-node">error_handler</span>
+  <span class="go-arrow"> ──→ </span>
+  <span class="go-end">END</span>
+</div>
+
+
+<!-- ═══════════════ PHASE 1 ═══════════════ -->
+<div class="phase-header">
+  <div class="phase-num">P1</div>
+  <div class="phase-info">
+    <div class="phase-tag">Phase 1 · Gate</div>
+    <div class="phase-title">Entry & Validation</div>
+  </div>
+</div>
+
+<!-- NODE: l1_classifier -->
+<div class="node-card open" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-node">NODE</span>
+    <span class="node-name">l1_classifier</span>
+    <span class="node-function">def l1_classifier(state: RBIState)</span>
+    <span class="node-latency">2–5ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">query</span><span class="sf-key-val">raw user input</span></div>
+        <div class="sf-key"><span class="sf-key-name">dept</span><span class="sf-key-val">user department</span></div>
+        <div class="sf-key"><span class="sf-key-name">session_id</span><span class="sf-key-val">for audit</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">is_valid</span><span class="sf-key-val">True / False</span></div>
+        <div class="sf-key"><span class="sf-key-name">invalid_reason</span><span class="sf-key-val">reason string or None</span></div>
+        <div class="sf-key"><span class="sf-key-name">audit_log</span><span class="sf-key-val">append l1 entry</span></div>
+      </div>
+    </div>
+    <div class="steps-label">Node Steps</div>
+    <ul class="step-list">
+      <li data-n="1"><strong>Regex Layer (0ms):</strong> Compile and apply blocked patterns — <code>DROP|DELETE|UPDATE|INSERT</code>, XSS patterns, credential keywords. Return <code>is_valid=False</code> immediately on match.</li>
+      <li data-n="2"><strong>Structural Check (1ms):</strong> Validate query length between 5–1000 chars. Detect language — accept English or Hindi only. Reject excessive special characters.</li>
+      <li data-n="3"><strong>Domain Keyword Check (2ms):</strong> Scan for RBI banking keywords — <code>bank, npa, fraud, dpd, penalty, circular, kyc, upi, camels, sarfaesi, inspection</code>. If found → set <code>is_valid=True</code>, skip LLM.</li>
+      <li data-n="4"><strong>LLM Fallback (150ms — only if Step 3 inconclusive):</strong> Call lightweight LLM with yes/no validation prompt. Set <code>is_valid</code> from response.</li>
+      <li data-n="5"><strong>Audit Entry:</strong> Append L1 result to <code>audit_log</code> — query_hash, validation_layer_used, result, latency_ms.</li>
+    </ul>
+    <div class="improv">Skip LLM for 80%+ of valid queries — domain keyword check returns immediately, saving 150ms</div>
+  </div>
+</div>
+
+<!-- CONDITIONAL EDGE: route_l1 -->
+<div class="node-card open" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-cond">CONDITIONAL EDGE</span>
+    <span class="node-name">route_l1</span>
+    <span class="node-function">def route_l1(state) → Literal["decompose_and_paraphrase", "error_handler"]</span>
+    <span class="node-latency">0ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="routing-table">
+      <div class="routing-row header">
+        <div class="routing-cell">CONDITION</div>
+        <div class="routing-cell">LOGIC</div>
+        <div class="routing-cell">NEXT NODE</div>
+      </div>
+      <div class="routing-row">
+        <div class="routing-cell condition">is_valid == True</div>
+        <div class="routing-cell logic">Query passed all L1 checks</div>
+        <div class="routing-cell target">decompose_and_paraphrase</div>
+      </div>
+      <div class="routing-row">
+        <div class="routing-cell condition">is_valid == False</div>
+        <div class="routing-cell logic">Blocked by regex, structural, or LLM check</div>
+        <div class="routing-cell target">error_handler</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- ═══════════════ PHASE 2 ═══════════════ -->
+<div class="phase-header">
+  <div class="phase-num">P2</div>
+  <div class="phase-info">
+    <div class="phase-tag">Phase 2 · Understanding</div>
+    <div class="phase-title">Decomposition, Paraphrasing & Classification</div>
+  </div>
+</div>
+
+<!-- NODE: decompose_and_paraphrase -->
+<div class="node-card open" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-node">NODE · PARALLEL</span>
+    <span class="node-name">decompose_and_paraphrase</span>
+    <span class="node-function">async def decompose_and_paraphrase(state: RBIState)</span>
+    <span class="node-latency">200ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">query</span><span class="sf-key-val">validated input</span></div>
+        <div class="sf-key"><span class="sf-key-name">dept</span><span class="sf-key-val">for context</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">decomposition</span><span class="sf-key-val">entities, filters, sub-queries</span></div>
+        <div class="sf-key"><span class="sf-key-name">paraphrases</span><span class="sf-key-val">list of 2 paraphrases</span></div>
+      </div>
+    </div>
+
+    <div class="parallel-wrap">
+      <div class="parallel-tag">ASYNCIO.GATHER — RUNS SIMULTANEOUSLY</div>
+      <div class="parallel-cols">
+        <div class="par-col">
+          <div class="par-col-title" style="color:var(--node)">SpaCy NLP Decomposition</div>
+          <ul>
+            <li>Load model once at app startup (singleton)</li>
+            <li>NER: extract bank names, amounts, dates, DPD values, city names, circular numbers</li>
+            <li>Dependency parse: identify subject + predicate + object</li>
+            <li>Split multi-intent queries into sub-queries list</li>
+            <li>Output: <code>decomposition</code> dict with entities, filters, sub_queries, join_hints</li>
+          </ul>
+        </div>
+        <div class="par-col">
+          <div class="par-col-title" style="color:var(--tool)">SLM Paraphrasing</div>
+          <ul>
+            <li>Use quantized flan-t5-small (INT8) — 80ms</li>
+            <li>Generate Paraphrase 1: formal RBI language version for vector search</li>
+            <li>Generate Paraphrase 2: keyword-dense version for BM25 pre-filter</li>
+            <li>Output: <code>paraphrases</code> list — [formal_para, keyword_para]</li>
+          </ul>
+        </div>
+        <div class="par-col">
+          <div class="par-col-title" style="color:var(--agent)">Cache Check</div>
+          <ul>
+            <li>Fingerprint query: lemmatize + sort tokens → hash</li>
+            <li>Check Redis query result cache</li>
+            <li>Hit → short-circuit: write final_response directly and jump to audit_logger</li>
+            <li>Miss → continue to l2_classifier</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="improv">asyncio.gather() runs SpaCy + SLM + cache check simultaneously — total = 200ms not 400ms</div>
+  </div>
+</div>
+
+<!-- NODE: l2_classifier -->
+<div class="node-card open" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-agent">AGENT NODE</span>
+    <span class="node-name">l2_classifier</span>
+    <span class="node-function">def l2_classifier(state: RBIState)</span>
+    <span class="node-latency">5–150ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">query</span><span class="sf-key-val">original</span></div>
+        <div class="sf-key"><span class="sf-key-name">decomposition</span><span class="sf-key-val">entities + sub-queries</span></div>
+        <div class="sf-key"><span class="sf-key-name">paraphrases</span><span class="sf-key-val">formal + keyword</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">sources</span><span class="sf-key-val">["sql","nosql","vector"]</span></div>
+        <div class="sf-key"><span class="sf-key-name">query_type</span><span class="sf-key-val">report/lookup/viz/multi_hop</span></div>
+      </div>
+    </div>
+    <ul class="step-list">
+      <li data-n="1"><strong>Routing Cache Lookup (0ms):</strong> Fingerprint decomposition output → check Redis routing cache. Cache hit → return <code>sources</code> + <code>query_type</code> immediately.</li>
+      <li data-n="2"><strong>Signal Rule Matching (5ms):</strong> Apply keyword signal rules on decomposition entities — count/sum/filter → SQL | complaint/alert/log → NoSQL | circular/report says → Vector | multiple entity types → multi_hop. If confident match → return result, skip LLM.</li>
+      <li data-n="3"><strong>Single LLM Call (150ms — only if rules inconclusive):</strong> Inject decomposition + source registry metadata. Single structured output call returns <code>sources[]</code>, <code>query_type</code>, <code>parallel_executable</code>, <code>confidence</code> in one JSON response.</li>
+      <li data-n="4"><strong>Store in routing cache (async):</strong> Cache result with 300s TTL for future similar queries.</li>
+    </ul>
+    <div class="improv">Combined source + type + plan in one LLM call. Routing cache gives 0ms on repeated patterns.</div>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- ═══════════════ PHASE 3 ═══════════════ -->
+<div class="phase-header">
+  <div class="phase-num">P3</div>
+  <div class="phase-info">
+    <div class="phase-tag">Phase 3 · Planning</div>
+    <div class="phase-title">Planner Agent</div>
+  </div>
+</div>
+
+<!-- NODE: planner_agent -->
+<div class="node-card open" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-agent">AGENT NODE</span>
+    <span class="node-name">planner_agent</span>
+    <span class="node-function">def planner_agent(state: RBIState)</span>
+    <span class="node-latency">0–200ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">sources</span><span class="sf-key-val">sql/nosql/vector</span></div>
+        <div class="sf-key"><span class="sf-key-name">query_type</span><span class="sf-key-val">report/lookup/etc</span></div>
+        <div class="sf-key"><span class="sf-key-name">decomposition</span><span class="sf-key-val">full intent object</span></div>
+        <div class="sf-key"><span class="sf-key-name">dept</span><span class="sf-key-val">access rules</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">execution_plan</span><span class="sf-key-val">ordered DAG of tool calls</span></div>
+      </div>
+    </div>
+    <ul class="step-list">
+      <li data-n="1"><strong>Plan Cache Lookup (0ms):</strong> Generate cache key from <code>query_type + sorted(sources)</code>. Check Redis plan cache. Cache hit → return plan immediately, skip LLM entirely.
+        <ul class="sub-list">
+          <li>Known: <code>sql_report</code> → [nl_sql, validator, viz, synthesizer]</li>
+          <li>Known: <code>vector_lookup</code> → [vector_search, synthesizer]</li>
+          <li>Known: <code>multi_hop</code> → [parallel_executor, join_results, validator, viz, synthesizer]</li>
+          <li>Known: <code>nosql_summary</code> → [nl_nosql, validator, synthesizer]</li>
+        </ul>
+      </li>
+      <li data-n="2"><strong>LLM Planning (200ms — novel patterns only):</strong> Inject L2 output + tool docstrings + dept access rules + parallel execution capability. LLM outputs a DAG — ordered list of tool calls with dependencies and parallel flags.</li>
+      <li data-n="3"><strong>Context Assembly:</strong> Load short-term session memory (last 3 turns). Load relevant long-term memory from Redis — domain glossary terms found in query, applicable RBI norms. Apply token budget per tool — SQL schema gets 800 tokens, vector context gets 1200 tokens.</li>
+      <li data-n="4"><strong>Inject Dept Access Rules:</strong> Load department-specific allowed_sources and denied_fields from Redis. Attach to plan so each tool node enforces access independently.</li>
+      <li data-n="5"><strong>Store new plan in cache (async):</strong> TTL 600s.</li>
+    </ul>
+    <div class="improv">Plan cache hit = 0ms planner. New patterns = 200ms. Either way executor gets a ready DAG to run.</div>
+  </div>
+</div>
+
+<!-- CONDITIONAL EDGE: route_sources -->
+<div class="node-card open" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-cond">CONDITIONAL EDGE</span>
+    <span class="node-name">route_sources</span>
+    <span class="node-function">def route_sources(state) → Literal["nl_sql_tool","nl_nosql_tool","vector_search_tool","parallel_executor"]</span>
+    <span class="node-latency">0ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="routing-table">
+      <div class="routing-row header">
+        <div class="routing-cell">CONDITION</div>
+        <div class="routing-cell">LOGIC</div>
+        <div class="routing-cell">NEXT NODE</div>
+      </div>
+      <div class="routing-row">
+        <div class="routing-cell condition">sources == ["sql"]</div>
+        <div class="routing-cell logic">Only structured DB needed</div>
+        <div class="routing-cell target">nl_sql_tool</div>
+      </div>
+      <div class="routing-row">
+        <div class="routing-cell condition">sources == ["nosql"]</div>
+        <div class="routing-cell logic">Only MongoDB needed</div>
+        <div class="routing-cell target">nl_nosql_tool</div>
+      </div>
+      <div class="routing-row">
+        <div class="routing-cell condition">sources == ["vector"]</div>
+        <div class="routing-cell logic">Only document search needed</div>
+        <div class="routing-cell target">vector_search_tool</div>
+      </div>
+      <div class="routing-row">
+        <div class="routing-cell condition">len(sources) > 1</div>
+        <div class="routing-cell logic">Multiple sources — multi-hop query</div>
+        <div class="routing-cell target">parallel_executor</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- ═══════════════ PHASE 4 ═══════════════ -->
+<div class="phase-header">
+  <div class="phase-num">P4</div>
+  <div class="phase-info">
+    <div class="phase-tag">Phase 4 · Execution</div>
+    <div class="phase-title">Tool Nodes & Parallel Executor</div>
+  </div>
+</div>
+
+<!-- TOOL: nl_sql_tool -->
+<div class="node-card" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-tool">TOOL NODE</span>
+    <span class="node-name">nl_sql_tool</span>
+    <span class="node-function">def nl_sql_tool(state: RBIState)</span>
+    <span class="node-latency">250ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">query</span><span class="sf-key-val">original</span></div>
+        <div class="sf-key"><span class="sf-key-name">decomposition</span><span class="sf-key-val">entities + filters</span></div>
+        <div class="sf-key"><span class="sf-key-name">dept</span><span class="sf-key-val">for access rules</span></div>
+        <div class="sf-key"><span class="sf-key-name">execution_plan</span><span class="sf-key-val">SQL-specific context</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">sql_result</span><span class="sf-key-val">rows, metadata, query_hash</span></div>
+        <div class="sf-key"><span class="sf-key-name">audit_log</span><span class="sf-key-val">append sql tool entry</span></div>
+        <div class="sf-key"><span class="sf-key-name">error</span><span class="sf-key-val">set if tool fails</span></div>
+      </div>
+    </div>
+    <ul class="step-list">
+      <li data-n="1"><strong>Fetch schema from Redis (0ms):</strong> Load relevant table schemas, join map, and column stats. Inject into LLM prompt — only tables relevant to this query.</li>
+      <li data-n="2"><strong>Fetch dept access rules from Redis (0ms):</strong> Get allowed_sources, denied_fields for current department.</li>
+      <li data-n="3"><strong>LLM generates SQL (200ms):</strong> Prompt includes system rules (SELECT only), table schemas, join map, few-shot examples, decomposition entities, denied_fields list.</li>
+      <li data-n="4"><strong>AST Guard Rail (2ms):</strong> Parse SQL with <code>sqlparse</code>. Block if not SELECT. Scan tokens for blocked keywords. Verify all table + column names against schema. Strip denied PII fields. Auto-inject LIMIT 500 if missing.</li>
+      <li data-n="5"><strong>Execute via asyncpg pool (50ms):</strong> Use connection pool (min 5, max 20). Read-only connection. Tag result with row_count, execution_time_ms, table_names, query_hash.</li>
+      <li data-n="6"><strong>Write audit entry async:</strong> tool=nl_sql, query_hash, row_count, latency_ms, tables_accessed, dept. Non-blocking.</li>
+    </ul>
+    <div class="improv">AST pre-parse blocks bad SQL in 2ms — bad query never touches the database</div>
+  </div>
+</div>
+
+<!-- TOOL: nl_nosql_tool -->
+<div class="node-card" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-tool">TOOL NODE</span>
+    <span class="node-name">nl_nosql_tool</span>
+    <span class="node-function">def nl_nosql_tool(state: RBIState)</span>
+    <span class="node-latency">250ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">query</span></div>
+        <div class="sf-key"><span class="sf-key-name">decomposition</span></div>
+        <div class="sf-key"><span class="sf-key-name">dept</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">nosql_result</span><span class="sf-key-val">docs, metadata, query_hash</span></div>
+        <div class="sf-key"><span class="sf-key-name">audit_log</span><span class="sf-key-val">append nosql entry</span></div>
+      </div>
+    </div>
+    <ul class="step-list">
+      <li data-n="1"><strong>Fetch collection metadata from Redis (0ms):</strong> Field names, types, index definitions, example values for relevant collection.</li>
+      <li data-n="2"><strong>LLM generates MongoDB query (200ms):</strong> System prompt restricts to <code>find()</code> and <code>aggregate()</code> only. Inject collection schema + index map + soft FK references + few-shot examples.</li>
+      <li data-n="3"><strong>Guard Rails (2ms):</strong> Parse JSON query. Block <code>insert/update/delete/drop/$out/$merge</code>. Verify field names against schema. Auto-inject PII field exclusion projection. Auto-inject <code>.limit(200)</code>.</li>
+      <li data-n="4"><strong>Execute via AsyncIOMotorClient (50ms):</strong> Non-blocking async execution. Serialize BSON to plain dicts.</li>
+      <li data-n="5"><strong>Write audit entry async.</strong></li>
+    </ul>
+  </div>
+</div>
+
+<!-- TOOL: vector_search_tool -->
+<div class="node-card" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-tool">TOOL NODE</span>
+    <span class="node-name">vector_search_tool</span>
+    <span class="node-function">def vector_search_tool(state: RBIState)</span>
+    <span class="node-latency">30ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">query</span></div>
+        <div class="sf-key"><span class="sf-key-name">paraphrases</span><span class="sf-key-val">formal + keyword versions</span></div>
+        <div class="sf-key"><span class="sf-key-name">decomposition</span><span class="sf-key-val">for metadata pre-filter</span></div>
+        <div class="sf-key"><span class="sf-key-name">dept</span><span class="sf-key-val">doc access filter</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">vector_result</span><span class="sf-key-val">top-10 chunks + scores</span></div>
+        <div class="sf-key"><span class="sf-key-name">audit_log</span><span class="sf-key-val">append vector entry</span></div>
+      </div>
+    </div>
+    <ul class="step-list">
+      <li data-n="1"><strong>Metadata pre-filter (2ms):</strong> Filter vector index to only chunks where <code>dept_relevance</code> includes current user's department. If circular_ref detected in query → filter to that doc only.</li>
+      <li data-n="2"><strong>BM25 pre-filter on keyword paraphrase (10ms):</strong> Run BM25 keyword search on filtered chunk pool using keyword-dense paraphrase. Narrow to top-50 candidates.</li>
+      <li data-n="3"><strong>Embedding cache check (0ms):</strong> Check if query text was embedded before. Cache hit → return cached vector. Miss → call BAAI/bge-m3 embedding model (80ms).</li>
+      <li data-n="4"><strong>Dense vector search on 50 candidates (20ms):</strong> Cosine similarity on BM25 subset only — not full 1,154 chunk index. 10x faster.</li>
+      <li data-n="5"><strong>Hybrid scoring + rerank:</strong> Final score = 0.4 × BM25_score + 0.6 × cosine_similarity. Return top-10 chunks with scores and source metadata.</li>
+      <li data-n="6"><strong>OCR/Image cache check:</strong> For any image or table chunks in results → check permanent OCR cache. Return cached Markdown/JSON. Never re-run OCR.</li>
+      <li data-n="7"><strong>Write audit entry async.</strong></li>
+    </ul>
+    <div class="improv">Two-stage BM25 → dense search: 10x smaller search space, 90ms saved vs full index dense scan</div>
+  </div>
+</div>
+
+<!-- NODE: parallel_executor -->
+<div class="node-card open" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-node">NODE · PARALLEL</span>
+    <span class="node-name">parallel_executor</span>
+    <span class="node-function">async def parallel_executor(state: RBIState)</span>
+    <span class="node-latency">300ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">sources</span><span class="sf-key-val">multiple sources list</span></div>
+        <div class="sf-key"><span class="sf-key-name">execution_plan</span><span class="sf-key-val">DAG with parallel flags</span></div>
+        <div class="sf-key"><span class="sf-key-name">query + decomposition</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">sql_result</span><span class="sf-key-val">if SQL in sources</span></div>
+        <div class="sf-key"><span class="sf-key-name">nosql_result</span><span class="sf-key-val">if NoSQL in sources</span></div>
+        <div class="sf-key"><span class="sf-key-name">vector_result</span><span class="sf-key-val">if Vector in sources</span></div>
+      </div>
+    </div>
+    <ul class="step-list">
+      <li data-n="1"><strong>Build async task list:</strong> For each source in <code>state.sources</code> → create async task: <code>nl_sql_async(state)</code>, <code>nl_nosql_async(state)</code>, <code>vector_search_async(state)</code>.</li>
+      <li data-n="2"><strong>Fire all tasks simultaneously via asyncio.gather():</strong> All tool coroutines execute at same time. Total latency = slowest single tool (~300ms) not sum (~900ms).</li>
+      <li data-n="3"><strong>Timeout guard (800ms per task):</strong> If any task exceeds 800ms → mark as TIMEOUT, continue with available results. Do not fail entire pipeline.</li>
+      <li data-n="4"><strong>Error isolation:</strong> If one tool fails → capture error for that source only. Other sources continue. Write failure to audit_log. Validator will flag as LOW_CONFIDENCE.</li>
+      <li data-n="5"><strong>Return all results to state:</strong> Each tool writes to its own state key — sql_result, nosql_result, vector_result independently.</li>
+    </ul>
+    <div class="improv">Biggest latency win: 600ms saved on multi-hop queries — all 3 sources execute simultaneously</div>
+  </div>
+</div>
+
+<!-- NODE: join_results -->
+<div class="node-card" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-node">NODE</span>
+    <span class="node-name">join_results</span>
+    <span class="node-function">def join_results(state: RBIState)</span>
+    <span class="node-latency">20ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">sql_result</span></div>
+        <div class="sf-key"><span class="sf-key-name">nosql_result</span></div>
+        <div class="sf-key"><span class="sf-key-name">vector_result</span></div>
+        <div class="sf-key"><span class="sf-key-name">decomposition</span><span class="sf-key-val">join key hints</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">joined_result</span><span class="sf-key-val">merged dataset with provenance</span></div>
+      </div>
+    </div>
+    <ul class="step-list">
+      <li data-n="1"><strong>Identify join key from decomposition hints:</strong> Usually <code>bank_id</code> or <code>account_id</code>. Use hint from planner if available.</li>
+      <li data-n="2"><strong>In-memory inner join (Python dict intersection):</strong> Match records from SQL, NoSQL, Vector on common join key. Only keep records present across all requested sources.</li>
+      <li data-n="3"><strong>Attach source provenance to each record:</strong> Tag every data point with which tool/source it came from — required for validator and synthesizer citations.</li>
+      <li data-n="4"><strong>Store in session short-term memory:</strong> Save joined_result in Redis session store — enables follow-up queries without re-execution.</li>
+    </ul>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- ═══════════════ PHASE 5 ═══════════════ -->
+<div class="phase-header">
+  <div class="phase-num">P5</div>
+  <div class="phase-info">
+    <div class="phase-tag">Phase 5 · Quality</div>
+    <div class="phase-title">Validation Gate</div>
+  </div>
+</div>
+
+<!-- NODE: validator_node -->
+<div class="node-card open" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-node">NODE · PARALLEL</span>
+    <span class="node-name">validator_node</span>
+    <span class="node-function">async def validator_node(state: RBIState)</span>
+    <span class="node-latency">10ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">sql_result / nosql_result / vector_result / joined_result</span></div>
+        <div class="sf-key"><span class="sf-key-name">dept</span><span class="sf-key-val">for PII check</span></div>
+        <div class="sf-key"><span class="sf-key-name">sources</span><span class="sf-key-val">expected sources</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">validation_status</span><span class="sf-key-val">PASS / FAIL / LOW_CONF</span></div>
+        <div class="sf-key"><span class="sf-key-name">confidence</span><span class="sf-key-val">0.0 – 1.0</span></div>
+      </div>
+    </div>
+    <div class="parallel-wrap" style="border-color:var(--tool)">
+      <div class="parallel-tag" style="color:var(--tool)">RUNS PARALLEL WITH SYNTHESIZER DRAFT</div>
+      <div class="parallel-cols" style="grid-template-columns:1fr 1fr">
+        <div class="par-col">
+          <div class="par-col-title" style="color:var(--tool)">Rule Checks (10ms)</div>
+          <ul>
+            <li>Row count non-zero</li>
+            <li>Schema type alignment</li>
+            <li>PII scan — Aadhaar / PAN patterns</li>
+            <li>Bank ID referential integrity</li>
+            <li>Amount sanity — no ₹0 or ₹99999Cr</li>
+            <li>Date range — no future dates in historical fields</li>
+            <li>Cross-source name consistency — bank_name matches across SQL + NoSQL</li>
+          </ul>
+        </div>
+        <div class="par-col">
+          <div class="par-col-title" style="color:var(--agent)">LLM Fallback (150ms — only if rules fail)</div>
+          <ul>
+            <li>Hallucination check — every borrower ID traceable to source row</li>
+            <li>Amount plausibility relative to sector</li>
+            <li>Source traceability — every data point has a source citation</li>
+            <li>Set confidence = 0.7 if LLM validation used</li>
+            <li>Set confidence = 0.95 if rules-only validation</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="improv">Rule-first validation (10ms) + parallel with synthesis draft — saves 200-300ms total</div>
+  </div>
+</div>
+
+<!-- CONDITIONAL EDGE: route_validator -->
+<div class="node-card open" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-cond">CONDITIONAL EDGE</span>
+    <span class="node-name">route_validator</span>
+    <span class="node-function">def route_validator(state) → Literal["viz_tool","error_handler"]</span>
+    <span class="node-latency">0ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="routing-table">
+      <div class="routing-row header">
+        <div class="routing-cell">CONDITION</div>
+        <div class="routing-cell">LOGIC</div>
+        <div class="routing-cell">NEXT NODE</div>
+      </div>
+      <div class="routing-row">
+        <div class="routing-cell condition">PASS or LOW_CONF</div>
+        <div class="routing-cell logic">Data is usable — LOW_CONF adds disclaimer in synthesis</div>
+        <div class="routing-cell target">viz_tool</div>
+      </div>
+      <div class="routing-row">
+        <div class="routing-cell condition">FAIL</div>
+        <div class="routing-cell logic">PII detected, schema mismatch, or hallucination found</div>
+        <div class="routing-cell target">error_handler</div>
+      </div>
+      <div class="routing-row">
+        <div class="routing-cell condition">sql_result empty + vector available</div>
+        <div class="routing-cell logic">Auto-escalate: check if answer exists in documents</div>
+        <div class="routing-cell target">vector_search_tool → re-enter pipeline</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- ═══════════════ PHASE 6 ═══════════════ -->
+<div class="phase-header">
+  <div class="phase-num">P6</div>
+  <div class="phase-info">
+    <div class="phase-tag">Phase 6 · Output</div>
+    <div class="phase-title">Visualization, Synthesis & Audit</div>
+  </div>
+</div>
+
+<!-- TOOL: viz_tool -->
+<div class="node-card" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-tool">TOOL NODE</span>
+    <span class="node-name">viz_tool</span>
+    <span class="node-function">def viz_tool(state: RBIState)</span>
+    <span class="node-latency">5ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">joined_result / sql_result</span></div>
+        <div class="sf-key"><span class="sf-key-name">query_type</span><span class="sf-key-val">viz flag</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">viz_spec</span><span class="sf-key-val">Chart.js JSON spec or None</span></div>
+      </div>
+    </div>
+    <ul class="step-list">
+      <li data-n="1"><strong>Check if visualization needed:</strong> If <code>query_type != "visualization"</code> → write <code>viz_spec=None</code> and exit immediately. No chart generated for lookup/explanation queries.</li>
+      <li data-n="2"><strong>Infer chart type (2ms):</strong> Rule map — time-series + metric → Line | categorical comparison → Bar | part-of-whole → Donut | multi-metric → Grouped Bar | no clear structure → Table.</li>
+      <li data-n="3"><strong>Generate Chart.js spec JSON (3ms):</strong> Build spec object with data, labels, RBI color palette (RED=critical, AMBER=watch, GREEN=healthy). Add threshold annotations — flag values exceeding RBI limits.</li>
+      <li data-n="4"><strong>Stream spec to frontend:</strong> Return 1KB JSON spec — frontend renders in browser. Do not render PNG/PDF on server.</li>
+    </ul>
+    <div class="improv">Client-side rendering: 5ms spec generation vs 800ms server-side PNG — 160x faster</div>
+  </div>
+</div>
+
+<!-- AGENT: synthesizer_agent -->
+<div class="node-card open" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-agent">AGENT NODE</span>
+    <span class="node-name">synthesizer_agent</span>
+    <span class="node-function">async def synthesizer_agent(state: RBIState)</span>
+    <span class="node-latency">200ms to first token</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">joined_result / sql/nosql/vector_result</span></div>
+        <div class="sf-key"><span class="sf-key-name">query + decomposition</span></div>
+        <div class="sf-key"><span class="sf-key-name">query_type</span><span class="sf-key-val">output format</span></div>
+        <div class="sf-key"><span class="sf-key-name">validation_status + confidence</span></div>
+        <div class="sf-key"><span class="sf-key-name">viz_spec</span><span class="sf-key-val">chart to include</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">final_response</span><span class="sf-key-val">streamed answer string</span></div>
+      </div>
+    </div>
+    <ul class="step-list">
+      <li data-n="1"><strong>Start streaming in parallel with validator (asyncio.gather):</strong> Draft synthesis begins while validation is still running. If validation passes (90%+ of the time) → draft is already complete, zero additional wait.</li>
+      <li data-n="2"><strong>Prompt assembly:</strong> Inject validated results + domain glossary terms + query intent + output format requirement + few-shot examples for current query_type.</li>
+      <li data-n="3"><strong>Apply RBI domain language:</strong> Replace DB values with RBI terminology using long-term domain glossary — DPD > 90 → "NPA Sub-Standard per IRACP norms" | CAMELS 4 → "Under Enhanced Monitoring" | reporting_delay > 21 → "FMRS violation under RBI/2023-24/85".</li>
+      <li data-n="4"><strong>Structure by query_type:</strong>
+        <ul class="sub-list">
+          <li>lookup → prose paragraph with source citation</li>
+          <li>report → summary paragraph + formatted table + key findings</li>
+          <li>multi_hop → executive findings + table + risk flags per bank</li>
+          <li>visualization → chart spec reference + narrative paragraph</li>
+        </ul>
+      </li>
+      <li data-n="5"><strong>Append confidence + source citations:</strong> HIGH/MEDIUM/LOW badge. List all tables, collections, doc_ids accessed. If LOW_CONF → add disclaimer "Recommend manual verification before action".</li>
+      <li data-n="6"><strong>Stream tokens via SSE:</strong> Push tokens to frontend as they generate — perceived latency = 200ms to first visible character.</li>
+      <li data-n="7"><strong>Proactive follow-up suggestion:</strong> Based on result, append 1 suggested follow-up query — "Want me to show the trend for these banks over the last 4 quarters?"</li>
+    </ul>
+    <div class="improv">Streaming output: perceived latency 200ms vs 2000ms full-response wait — 10x UX improvement</div>
+  </div>
+</div>
+
+<!-- NODE: audit_logger -->
+<div class="node-card" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-node">NODE · ASYNC</span>
+    <span class="node-name">audit_logger</span>
+    <span class="node-function">async def audit_logger(state: RBIState)</span>
+    <span class="node-latency">Non-blocking</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <div class="state-flow">
+      <div class="sf-panel">
+        <div class="sf-panel-label in">READS FROM STATE</div>
+        <div class="sf-key"><span class="sf-key-name">audit_log</span><span class="sf-key-val">accumulated entries</span></div>
+        <div class="sf-key"><span class="sf-key-name">All result keys</span></div>
+        <div class="sf-key"><span class="sf-key-name">confidence + validation_status</span></div>
+        <div class="sf-key"><span class="sf-key-name">final_response</span></div>
+      </div>
+      <div class="sf-arrow">→</div>
+      <div class="sf-panel">
+        <div class="sf-panel-label out">WRITES TO STATE</div>
+        <div class="sf-key"><span class="sf-key-name">audit_log</span><span class="sf-key-val">final immutable entry</span></div>
+      </div>
+    </div>
+    <ul class="step-list">
+      <li data-n="1"><strong>Assemble final audit record:</strong> Merge all per-tool audit entries accumulated in <code>state.audit_log</code> throughout the run.</li>
+      <li data-n="2"><strong>Final audit fields:</strong> session_id, user_dept, query_hash, tools_called[], sources_accessed[], row_counts{}, pii_masked=True, confidence, total_latency_ms, data_lineage_chain, response_hash, timestamp.</li>
+      <li data-n="3"><strong>Write to append-only audit table (async):</strong> Postgres INSERT into immutable audit_logs table. Non-blocking — does not hold up response delivery to user.</li>
+      <li data-n="4"><strong>Update long-term memory (async):</strong> If new query pattern → add to query pattern library in Redis. Update short-term session memory with result summary for follow-up awareness.</li>
+      <li data-n="5"><strong>Update result cache (async):</strong> Store final_response in query result cache with appropriate TTL for future cache hits.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- NODE: error_handler -->
+<div class="node-card" onclick="toggle(this)">
+  <div class="node-header">
+    <span class="node-type-pill pill-end">TERMINAL NODE</span>
+    <span class="node-name">error_handler</span>
+    <span class="node-function">def error_handler(state: RBIState) → END</span>
+    <span class="node-latency">5ms</span>
+    <span class="node-chevron">▾</span>
+  </div>
+  <div class="node-body">
+    <ul class="step-list">
+      <li data-n="1"><strong>Read error source from state:</strong> Check <code>state.invalid_reason</code>, <code>state.error</code>, <code>state.validation_status</code> to identify failure type.</li>
+      <li data-n="2"><strong>Generate user-friendly error response:</strong> L1 INVALID → "This query is outside the scope of RBI supervision data. Please ask about banks, NPA, fraud, inspections, or RBI circulars." | TOOL FAIL → "Data retrieval encountered an issue. Please try rephrasing or contact support." | VALIDATION FAIL → "Result could not be verified against source data. Manual query recommended."</li>
+      <li data-n="3"><strong>Write error audit entry:</strong> Log failure type, node that failed, error message, timestamp — for debugging and improvement.</li>
+      <li data-n="4"><strong>Return to END.</strong></li>
+    </ul>
+  </div>
+</div>
+
+<hr class="div">
+
+<!-- SUMMARY TABLE -->
+<div style="background:var(--surface); border:1px solid var(--border2); border-radius:10px; padding:24px; margin-top:8px;">
+  <div style="font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--muted); margin-bottom:16px;">COMPLETE NODE REGISTRY</div>
+  <table style="width:100%; border-collapse:collapse; font-size:12px;">
+    <tr style="background:var(--surface2);">
+      <th style="padding:8px 12px; text-align:left; font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1px; font-weight:400;">NODE</th>
+      <th style="padding:8px 12px; text-align:left; font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1px; font-weight:400;">TYPE</th>
+      <th style="padding:8px 12px; text-align:left; font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1px; font-weight:400;">READS</th>
+      <th style="padding:8px 12px; text-align:left; font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1px; font-weight:400;">WRITES</th>
+      <th style="padding:8px 12px; text-align:left; font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1px; font-weight:400;">LATENCY</th>
+    </tr>
+    <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 12px; color:var(--node); font-family:'Space Mono',monospace; font-size:10px;">l1_classifier</td><td style="padding:7px 12px; color:var(--muted)">Node</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">query, dept</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">is_valid, invalid_reason</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">2–5ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border); background:var(--surface2)"><td style="padding:7px 12px; color:var(--cond); font-family:'Space Mono',monospace; font-size:10px;">route_l1</td><td style="padding:7px 12px; color:var(--muted)">Cond Edge</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">is_valid</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">—</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">0ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 12px; color:var(--node); font-family:'Space Mono',monospace; font-size:10px;">decompose_and_paraphrase</td><td style="padding:7px 12px; color:var(--muted)">Node·Parallel</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">query, dept</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">decomposition, paraphrases</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">200ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border); background:var(--surface2)"><td style="padding:7px 12px; color:var(--agent); font-family:'Space Mono',monospace; font-size:10px;">l2_classifier</td><td style="padding:7px 12px; color:var(--muted)">Agent Node</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">query, decomposition, paraphrases</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">sources, query_type</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">5–150ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 12px; color:var(--agent); font-family:'Space Mono',monospace; font-size:10px;">planner_agent</td><td style="padding:7px 12px; color:var(--muted)">Agent Node</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">sources, query_type, decomposition, dept</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">execution_plan</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">0–200ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border); background:var(--surface2)"><td style="padding:7px 12px; color:var(--cond); font-family:'Space Mono',monospace; font-size:10px;">route_sources</td><td style="padding:7px 12px; color:var(--muted)">Cond Edge</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">sources</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">—</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">0ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">nl_sql_tool</td><td style="padding:7px 12px; color:var(--muted)">Tool Node</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">query, decomposition, dept</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">sql_result, audit_log</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">250ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border); background:var(--surface2)"><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">nl_nosql_tool</td><td style="padding:7px 12px; color:var(--muted)">Tool Node</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">query, decomposition, dept</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">nosql_result, audit_log</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">250ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">vector_search_tool</td><td style="padding:7px 12px; color:var(--muted)">Tool Node</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">query, paraphrases, decomposition, dept</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">vector_result, audit_log</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">30ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border); background:var(--surface2)"><td style="padding:7px 12px; color:var(--node); font-family:'Space Mono',monospace; font-size:10px;">parallel_executor</td><td style="padding:7px 12px; color:var(--muted)">Node·Parallel</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">sources, execution_plan</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">sql+nosql+vector_result</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">300ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 12px; color:var(--node); font-family:'Space Mono',monospace; font-size:10px;">join_results</td><td style="padding:7px 12px; color:var(--muted)">Node</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">sql+nosql+vector_result, decomposition</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">joined_result</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">20ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border); background:var(--surface2)"><td style="padding:7px 12px; color:var(--node); font-family:'Space Mono',monospace; font-size:10px;">validator_node</td><td style="padding:7px 12px; color:var(--muted)">Node·Parallel</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">all result keys, dept, sources</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">validation_status, confidence</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">10ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 12px; color:var(--cond); font-family:'Space Mono',monospace; font-size:10px;">route_validator</td><td style="padding:7px 12px; color:var(--muted)">Cond Edge</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">validation_status</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">—</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">0ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border); background:var(--surface2)"><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">viz_tool</td><td style="padding:7px 12px; color:var(--muted)">Tool Node</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">joined_result, query_type</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">viz_spec</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">5ms</td></tr>
+    <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 12px; color:var(--agent); font-family:'Space Mono',monospace; font-size:10px;">synthesizer_agent</td><td style="padding:7px 12px; color:var(--muted)">Agent·Stream</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">all results, query_type, confidence, viz_spec</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">final_response</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">200ms first token</td></tr>
+    <tr style="border-bottom:1px solid var(--border); background:var(--surface2)"><td style="padding:7px 12px; color:var(--node); font-family:'Space Mono',monospace; font-size:10px;">audit_logger</td><td style="padding:7px 12px; color:var(--muted)">Node·Async</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">full state</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">audit_log (immutable write)</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">non-blocking</td></tr>
+    <tr><td style="padding:7px 12px; color:var(--end); font-family:'Space Mono',monospace; font-size:10px;">error_handler</td><td style="padding:7px 12px; color:var(--muted)">Terminal</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">error, invalid_reason, validation_status</td><td style="padding:7px 12px; color:#7a8499; font-size:11px;">final_response (error msg)</td><td style="padding:7px 12px; color:var(--tool); font-family:'Space Mono',monospace; font-size:10px;">5ms</td></tr>
+  </table>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+function toggle(card) {
+  // only toggle if clicking the header
+  card.classList.toggle('open');
+}
+// Make only header clickable
+document.querySelectorAll('.node-header').forEach(h => {
+  h.addEventListener('click', function(e) {
+    e.stopPropagation();
+    this.parentElement.classList.toggle('open');
+  });
+});
+document.querySelectorAll('.node-card').forEach(c => {
+  c.onclick = null;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+[
+  {
+    "pattern_id": "bank_risk_npa_camels",
+    "description": "Find banks with high NPA rates and poor CAMELS ratings",
+    "sources": ["npa_accounts", "bank_inspection_reports", "vector_db"],
+    "join_key": "bank_id",
+    "execution_plan": "vector_search -> sql_execute -> validator_node -> synthesizer",
+    "avg_latency_ms": 780,
+    "success_rate": 0.98
+  },
+  {
+    "pattern_id": "fraud_reporting_delay",
+    "description": "Retrieve fraud cases with reporting delays exceeding 21 days",
+    "sources": ["fraud_reports"],
+    "join_key": "bank_id",
+    "execution_plan": "sql_execute -> validator_node -> viz_tool -> synthesizer",
+    "avg_latency_ms": 320,
+    "success_rate": 0.99
+  },
+  {
+    "pattern_id": "circular_lookup",
+    "description": "Look up circular guidelines on specific topic terms",
+    "sources": ["vector_db"],
+    "join_key": null,
+    "execution_plan": "vector_search -> validator_node -> synthesizer",
+    "avg_latency_ms": 220,
+    "success_rate": 0.97
+  },
+  {
+    "pattern_id": "upi_cyber_hop",
+    "description": "Combine monthly payment metrics with public complaints",
+    "sources": ["digital_payment_metrics", "bank_complaints"],
+    "join_key": "bank_id",
+    "execution_plan": "parallel_executor(sql_execute, nosql_query) -> join_results -> validator_node -> synthesizer",
+    "avg_latency_ms": 480,
+    "success_rate": 0.95
+  },
+  {
+    "pattern_id": "full_risk_dashboard",
+    "description": "Aggregate a bank's risk footprint including NPA, fraud, complaints, and inspection reports",
+    "sources": ["npa_accounts", "fraud_reports", "penalty_orders", "bank_complaints", "supervisory_alerts", "vector_db"],
+    "join_key": "bank_id",
+    "execution_plan": "parallel_executor(sql_execute, nosql_query, vector_search) -> join_results -> validator_node -> viz_tool -> synthesizer",
+    "avg_latency_ms": 890,
+    "success_rate": 0.94
+  }
+]
