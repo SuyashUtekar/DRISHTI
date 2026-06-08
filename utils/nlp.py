@@ -9,6 +9,9 @@ from google.generativeai.types import GenerationConfig
 from gliner import GLiNER
 from state import RBIState
 from utils.schema import DecompositionPackSchema
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # =====================================================================
 # 1. Logger Setup
