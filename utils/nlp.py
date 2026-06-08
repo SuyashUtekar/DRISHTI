@@ -4,8 +4,8 @@ import spacy
 import asyncio
 import hashlib
 import logging
-from google import generativeai as genai
-from google.generativeai.types import GenerationConfig
+from google import genai
+from google.genai import types
 from gliner import GLiNER
 from state import RBIState
 from utils.schema import DecompositionPackSchema
@@ -67,7 +67,7 @@ except Exception as e:
     logger.error(f"Could not load domain_glossary.json. Expected at {GLOSSARY_PATH}. Error: {e}")
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "YOUR_FALLBACK_KEY")
-genai.configure(api_key=GEMINI_API_KEY)
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 # =====================================================================
 # 3. The LangGraph Node Function
@@ -144,17 +144,14 @@ async def decompose_and_paraphrase_node(state: RBIState) -> dict:
         # ---------------------------------------------------------
         try:
             logger.debug(f"[Session: {session_id}] Sending decomposition prompt to Gemini API.")
-            model = genai.GenerativeModel(
-                model_name="gemini-1.5-flash",
-                system_instruction=system_instruction
-            )
-            
-            response = model.generate_content(
-                user_prompt,
-                generation_config=GenerationConfig(
+            response = client.models.generate_content(
+                model="gemini-3.1-flash-lite",
+                contents=user_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
                     response_mime_type="application/json",
                     response_schema=DecompositionPackSchema,
-                    temperature=0.1 
+                    temperature=0.1
                 )
             )
             
