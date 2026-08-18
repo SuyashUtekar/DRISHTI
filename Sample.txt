@@ -1,0 +1,124 @@
+Applied AI/ML techniques in day-to-day project development, particularly in document intelligence, semantic search, and intelligent information retrieval.
+* Developed the CDTA (Cross Document Topic Aligned) chunking pipeline using LLM-based capabilities to improve the organization and retrieval of relevant document content.
+* Contributed to the Intelligent Search platform by working on Knowledge APIs, Knowledge Processors, and Search APIs for AI-driven information retrieval.
+* Used LLM-based evaluation along with manual evaluation to assess the quality and effectiveness of AI-generated outputs.
+* Participated in the AI Agentic Hackathon 2026, where we designed an agentic workflow for natural-language interaction with databases.
+* Continuously explored and applied emerging Generative AI and Agentic AI approaches to solve practical business and technical problems.
+
+
+
+    Participated in the AI Agentic Hackathon 2026 and contributed to designing an end-to-end agentic workflow for natural-language interaction with databases.
+* Contributed technical ideas around agentic AI, query understanding, database interaction, and intelligent response generation during the hackathon.
+* Applied concepts explored during the hackathon to understand how AI-driven solutions can address practical business and data-access challenges.
+* Actively participated in organization-level technology initiatives and events, contributing beyond regular project responsibilities.
+* Continued to explore emerging technologies such as Generative AI, Agentic AI, LLMs, and intelligent search and their potential applications within the organization.
+* Contributed to organizational activities through participation in the AI hackathon, interview drive, and Foundation Day cultural activities.
+
+
+
+    Continued to upskill in AI/ML and Generative AI technologies, with a focus on LLMs, Agentic AI, intelligent search, document intelligence, and related technologies.
+* Applied the knowledge gained through learning and training directly to project work, particularly in CDTA chunking, Intelligent Search, and AI-based solutions.
+* Participated in knowledge-sharing and technical discussions within the team to understand and exchange ideas around emerging AI technologies and project challenges.
+* Contributed to recruitment activities by volunteering in the interview drive and participating in the evaluation of candidates.
+* Supported the organization’s learning culture by actively engaging in cross-functional technical activities and knowledge-sharing opportunities.
+
+
+
+    Continue strengthening my expertise in Generative AI, Agentic AI, LLMs, NLP, and intelligent search and apply these skills to real-world fintech use cases.
+* Take greater end-to-end ownership of AI components, from requirement understanding and development to testing, evaluation, and delivery.
+* Improve the quality, scalability, reliability, and maintainability of AI solutions developed for the organization.
+* Contribute more actively to innovation initiatives, hackathons, and technology-driven projects, with a focus on converting ideas into practical solutions.
+* Continue contributing to knowledge sharing, recruitment activities, and organizational initiatives beyond regular project responsibilities.
+* Build stronger understanding of business and domain requirements so that technical solutions create measurable value for the organization.
+* Take up more challenging responsibilities and gradually grow towards becoming a stronger independent contributor in AI/ML engineering and solution development.
+
+
+
+
+    Follow a structured approach to ensure the quality and correctness of my deliverables before sharing them with the team.
+* Performed manual as well as LLM-based evaluation for the CDTA chunking pipeline to verify the quality and relevance of generated outputs.
+* Conducted a detailed evaluation of the PDFLens component, systematically identifying limitations and maintaining an Excel tracker to ensure findings were properly recorded and followed up.
+* Performed unit testing and validation for the APIs and components developed as part of the Intelligent Search platform.
+* Cross-checked implementation outputs, API responses, and edge cases to identify issues early and reduce rework.
+* Maintain proper tracking of tasks, findings, and project-related information to ensure that important details are not missed.
+* Prepare and organize relevant technical information before discussions, reviews, and presentations to communicate the work clearly and accurately.
+
+
+
+
+    Continuously expanded my knowledge in Generative AI, Agentic AI, LLMs, NLP, RAG, and intelligent search through self-learning, training, and practical project work.
+* Applied newly acquired concepts directly to projects, particularly in CDTA chunking, Intelligent Search, and AI-based document processing.
+* Explored and evaluated different AI approaches while working on project challenges, helping me understand their practical strengths, limitations, and suitable use cases.
+* Participated in the AI Agentic Hackathon 2026, which provided an opportunity to learn and apply agentic workflows and database interaction concepts in a practical setting.
+* Learned from technical discussions, code reviews, team members, and project feedback and incorporated those learnings into subsequent implementations.
+* Took initiative to understand areas beyond my immediate responsibilities, including AI evaluation, search systems, document processing, and agentic architectures.
+* Continued improving my technical and problem-solving capabilities by learning from implementation challenges, testing results, and feedback received during project execution.
+
+
+
+
+    Take ownership and accountability for assigned tasks and ensure that deliverables are completed with the expected quality and within agreed timelines.
+* Plan and prioritize my work based on project requirements and actively track progress to ensure timely delivery.
+* Maintain a professional and collaborative approach while working with team members and during technical discussions.
+* Remain consistent and resilient when dealing with technical challenges, taking the initiative to investigate issues and work towards practical solutions.
+* Follow organizational processes and maintain discipline in areas such as timesheet compliance, project tracking, documentation, and reporting.
+* Communicate project updates, challenges, and dependencies clearly with the relevant team members to avoid delays or misunderstandings.
+* Maintain integrity in my work by accurately reporting progress, documenting findings, and objectively evaluating technical outputs rather than overlooking limitations.
+* Contribute positively to the workplace beyond regular project responsibilities through participation in the interview drive, AI hackathon, and organizational cultural activities.
+
+
+
+
+
+    Adapted to different technical requirements and project priorities across CDTA Chunking, Intelligent Search, and PDFLens evaluation activities.
+* Remained open to exploring and adopting new AI/ML technologies and approaches, particularly in Generative AI, LLMs, Agentic AI, and intelligent search.
+* Evaluated different approaches during development and testing and was willing to change the implementation strategy when an approach did not provide the expected results.
+* Considered feedback and suggestions from team members and incorporated relevant inputs to improve the quality of my work.
+* Adapted to working across different components of the Intelligent Search platform, including Knowledge APIs, Knowledge Processors, and Search APIs.
+* Took up responsibilities outside regular development work, such as the AI Agentic Hackathon, interview drive, and organizational activities, demonstrating willingness to contribute in different areas.
+* Used evaluation results and technical findings to challenge initial assumptions and make evidence-based improvements to the solutions.
+
+
+
+
+    Communicate technical concepts, project updates, challenges, and findings in a clear and structured manner with team members and stakeholders.
+* Document technical work, evaluation findings, and implementation details in a way that can be easily referred to by others.
+* Maintained a structured Excel tracker for PDFLens evaluation findings, making issues and observations easier to review and follow up.
+* Clearly communicated the outcomes and observations from CDTA chunking evaluation through manual and LLM-based assessment.
+* Participated actively in technical discussions and contributed ideas during the AI Agentic Hackathon, particularly around the agentic workflow and database interaction.
+* Organize and present technical information using appropriate documentation, diagrams, presentations, and other visual aids wherever they help simplify complex concepts.
+* Keep relevant team members informed about task progress, technical challenges, dependencies, and important findings to support effective collaboration.
+* Continue improving my ability to communicate complex AI/ML concepts in a manner that is understandable to both technical and non-technical audiences.
+
+
+
+
+    Demonstrate ownership, accountability, and a consistent focus on delivering quality work within project timelines.
+* Maintain attention to detail through structured testing, evaluation, documentation, and tracking of findings.
+* Remain adaptable to changing requirements and open to new technologies, approaches, and feedback.
+* Continuously upskill in Generative AI, LLMs, Agentic AI, NLP, and intelligent search and apply the learning to practical project requirements.
+* Communicate technical information clearly through discussions, documentation, presentations, and structured evaluation reports.
+* Approach technical challenges with a problem-solving mindset, using evaluation results and feedback to improve solutions.
+* Actively contribute beyond core project responsibilities through hackathons, recruitment activities, and organizational initiatives.
+* Maintain professional work practices, including planning, prioritization, timely communication, compliance with organizational processes, and effective collaboration.
+* Aim to build stronger domain understanding and take greater end-to-end ownership of AI/ML solutions in the fintech domain.
+
+
+
+
+    Generative AI & LLMs – LLM fundamentals, prompt engineering, RAG, and practical LLM-based application development.
+* Agentic AI – AI agents, agentic workflows, LangChain, and LangGraph.
+* NLP & Intelligent Search – NER, coreference resolution, semantic search, document processing, and AI-driven information retrieval.
+
+
+
+
+    During this appraisal cycle, I have contributed to multiple AI/ML and intelligent search initiatives, with a focus on delivering quality solutions and taking ownership of assigned responsibilities.
+* I developed the CDTA (Cross Document Topic Aligned) chunking pipeline end-to-end, including LLM integration, implementation, testing, and manual/LLM-based evaluation.
+* Contributed to the Intelligent Search platform across Knowledge APIs, Knowledge Processors, and Search APIs, along with unit testing and other supporting development activities.
+* Conducted a detailed evaluation of the PDFLens component, identifying limitations and maintaining a structured tracker to support improvement and decision-making.
+* Actively focused on continual learning and upskilling in Generative AI, LLMs, Agentic AI, NLP, RAG, and intelligent search, and applied these learnings to practical project requirements.
+* Participated in the AI Agentic Hackathon 2026, contributing to the design of an agentic workflow for natural-language interaction with databases.
+* Demonstrated ownership, adaptability, attention to detail, and a collaborative approach while working across different technical components and responsibilities.
+* Contributed beyond regular project work through recruitment activities and organizational cultural initiatives.
+* Going forward, I aim to take greater end-to-end ownership, strengthen my fintech domain knowledge, deepen my AI/ML expertise, and contribute to scalable, reliable, and business-focused AI solutions.
